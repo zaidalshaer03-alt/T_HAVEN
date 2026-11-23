@@ -1,0 +1,1136 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>T-HAVEN — إدارة القاعدة</title>
+<style>
+:root{
+  --ink:#04060e;--ink2:#080c18;--surf:#0d1322;--surf2:#141b2e;
+  --line:rgba(0,200,255,.22);--cyan:#00c8ff;--green:#00ff88;
+  --amber:#ffb020;--gold:#ffd700;--red:#ff3344;--violet:#8b5cff;--blue:#3d7bff;
+  --txt:#e8f2ff;--dim:#8fa3bd;--dim2:#5d7089;
+  --mono:'Courier New',ui-monospace,monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{background:var(--ink);color:var(--txt);overflow:hidden;font-family:var(--mono);user-select:none;-webkit-user-select:none}
+button{font-family:inherit;cursor:pointer;border:none}
+*{scrollbar-width:thin;scrollbar-color:var(--cyan) rgba(0,200,255,.08)}
+*::-webkit-scrollbar{width:8px;height:8px}
+*::-webkit-scrollbar-track{background:rgba(0,200,255,.06);border-radius:6px}
+*::-webkit-scrollbar-thumb{background:linear-gradient(180deg,var(--cyan),var(--violet));border-radius:6px}
+
+#bg{position:fixed;inset:0;z-index:0;
+  background:
+    radial-gradient(ellipse at 20% 10%,rgba(0,200,255,.10),transparent 55%),
+    radial-gradient(ellipse at 80% 90%,rgba(139,92,255,.10),transparent 55%),
+    linear-gradient(180deg,#04060e,#080c18)}
+#grid-overlay{position:fixed;inset:0;z-index:1;pointer-events:none;
+  background-image:
+    linear-gradient(rgba(0,200,255,.03) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(0,200,255,.03) 1px,transparent 1px);
+  background-size:44px 44px}
+
+#game{position:fixed;inset:0;display:flex;flex-direction:column;z-index:10}
+
+/* ============ Resources ============ */
+#resources{display:flex;gap:8px;padding:10px;background:rgba(4,8,18,.88);
+  border-bottom:1px solid var(--line);backdrop-filter:blur(8px);flex-wrap:wrap;z-index:5}
+.res-item{display:flex;align-items:center;gap:7px;padding:7px 12px;
+  background:rgba(0,200,255,.05);border:1px solid var(--line);border-radius:9px;
+  font-size:13px;font-weight:bold;min-width:108px;transition:transform .15s}
+.res-item .icon{font-size:16px}
+.res-item .name{color:var(--dim);font-size:9px;letter-spacing:1px}
+.res-item .val{color:var(--txt);font-size:13px}
+.res-item.full .val{color:var(--amber)}
+.res-item.wood{border-color:rgba(180,120,70,.45)}
+.res-item.iron{border-color:rgba(150,160,180,.45)}
+.res-item.food{border-color:rgba(0,255,136,.45)}
+.res-item.gold{border-color:rgba(255,215,0,.5)}
+.res-item.workers{border-color:rgba(0,200,255,.5);cursor:pointer}
+.res-item.workers:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,200,255,.2)}
+
+/* ============ Wave Status ============ */
+#wave-status{padding:10px 14px;background:rgba(4,8,18,.72);
+  border-bottom:1px solid var(--line);display:flex;justify-content:space-between;
+  align-items:center;gap:10px;flex-wrap:wrap}
+.wave-info{display:flex;gap:14px;align-items:center;flex-wrap:wrap;font-size:12px}
+.wave-info span.lbl{color:var(--dim)}
+.wave-info strong{color:var(--cyan)}
+.wave-info .safe{color:var(--green)}
+.wave-info .danger{color:var(--red)}
+.wave-timer{font-size:20px;font-weight:bold;color:var(--cyan);
+  padding:5px 14px;background:rgba(0,200,255,.08);border-radius:7px;
+  text-shadow:0 0 10px rgba(0,200,255,.5);min-width:96px;text-align:center;
+  transition:all .2s}
+.wave-timer.urgent{color:var(--red);background:rgba(255,51,68,.15);
+  animation:urgPulse .8s infinite}
+@keyframes urgPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+.wave-bar{width:100%;height:3px;background:rgba(0,200,255,.12);
+  border-radius:2px;overflow:hidden;margin-top:8px}
+.wave-bar-fill{height:100%;width:100%;
+  background:linear-gradient(90deg,var(--red),var(--amber),var(--cyan));
+  transition:width 1s linear}
+
+/* ============ Building Grid ============ */
+#buildings-grid{flex:1;padding:14px;display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(165px,1fr));
+  gap:10px;overflow-y:auto;align-content:start}
+.building-card{background:linear-gradient(150deg,var(--surf),var(--ink2));
+  border:1.5px solid var(--line);border-radius:12px;padding:12px;
+  cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
+.building-card:hover{border-color:var(--cyan);transform:translateY(-2px);
+  box-shadow:0 8px 24px rgba(0,200,255,.15)}
+.building-card.locked{opacity:.45;cursor:not-allowed}
+.building-card.locked:hover{transform:none;box-shadow:none;border-color:var(--line)}
+.building-card.maxed{border-color:rgba(255,215,0,.55);
+  box-shadow:0 0 14px rgba(255,215,0,.15)}
+.building-icon{font-size:28px;margin-bottom:6px;display:block}
+.building-name{font-size:14px;font-weight:bold;color:var(--txt);margin-bottom:4px}
+.building-level{font-size:11px;color:var(--amber);margin-bottom:4px}
+.building-effect{font-size:11px;color:var(--green);margin-bottom:6px;line-height:1.4}
+.building-workers{display:flex;gap:3px;flex-wrap:wrap;margin-top:6px}
+.worker-dot{width:8px;height:8px;border-radius:50%;background:var(--dim2);transition:all .2s}
+.worker-dot.active{background:var(--cyan);box-shadow:0 0 6px var(--cyan)}
+.building-badge{position:absolute;top:8px;left:8px;background:rgba(255,51,68,.9);
+  color:#fff;font-size:10px;padding:2px 7px;border-radius:10px;font-weight:bold}
+
+/* ============ Action Bar ============ */
+#action-bar{display:flex;gap:8px;padding:10px;background:rgba(4,8,18,.92);
+  border-top:1px solid var(--line);backdrop-filter:blur(8px)}
+.action-btn{flex:1;padding:12px 6px;border-radius:10px;font-size:12px;
+  font-weight:bold;color:var(--txt);background:rgba(0,200,255,.08);
+  border:1.5px solid var(--line);transition:all .15s}
+.action-btn:hover{background:rgba(0,200,255,.2);border-color:var(--cyan)}
+.action-btn:active{transform:scale(.97)}
+.action-btn.primary{background:linear-gradient(135deg,rgba(0,255,136,.2),rgba(0,255,136,.05));
+  border-color:var(--green);color:var(--green)}
+.action-btn.danger{background:linear-gradient(135deg,rgba(255,51,68,.2),rgba(255,51,68,.05));
+  border-color:var(--red);color:var(--red)}
+
+/* ============ Panels ============ */
+.panel{display:none;position:fixed;inset:0;background:rgba(2,4,10,.94);
+  backdrop-filter:blur(10px);z-index:1000;flex-direction:column;
+  align-items:center;padding:20px;overflow-y:auto}
+.panel.active{display:flex}
+.box{background:linear-gradient(150deg,var(--surf),var(--ink2));
+  border:2px solid var(--cyan);border-radius:16px;max-width:540px;width:100%;
+  color:var(--txt);overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.6);
+  margin:auto 0}
+.box.gold{border-color:var(--gold)}
+.box.red{border-color:var(--red)}
+.box.green{border-color:var(--green)}
+.box-head{padding:18px;border-bottom:1px solid var(--line);
+  background:linear-gradient(180deg,rgba(0,200,255,.1),transparent);
+  display:flex;justify-content:space-between;align-items:center}
+.box-head h2{font-size:18px;letter-spacing:1px;color:var(--cyan);flex:1;text-align:center}
+.box.gold .box-head h2{color:var(--gold)}
+.box.red .box-head h2{color:var(--red)}
+.box.green .box-head h2{color:var(--green)}
+.close-x{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.08);
+  color:var(--dim);font-size:16px;display:flex;align-items:center;
+  justify-content:center;transition:all .15s}
+.close-x:hover{background:rgba(255,51,68,.25);color:var(--red)}
+.box-body{padding:18px;max-height:70vh;overflow-y:auto}
+
+.detail-row{display:flex;justify-content:space-between;padding:9px 0;
+  border-bottom:1px solid rgba(255,255,255,.05);font-size:13px}
+.detail-row:last-child{border-bottom:none}
+.detail-row .lbl{color:var(--dim)}
+.detail-row .val{color:var(--txt);font-weight:bold}
+.detail-row .val.green{color:var(--green)}
+.detail-row .val.amber{color:var(--amber)}
+.detail-row .val.red{color:var(--red)}
+
+.worker-control{display:flex;justify-content:space-between;align-items:center;
+  background:rgba(0,200,255,.05);border:1px solid var(--line);border-radius:10px;
+  padding:10px 12px;margin-top:10px;gap:10px}
+.wc-info{font-size:13px;flex:1}
+.wc-info small{color:var(--dim);display:block;margin-top:2px;font-size:10px}
+.wc-controls{display:flex;gap:5px;align-items:center}
+.wc-btn{width:34px;height:34px;border-radius:8px;background:rgba(0,200,255,.15);
+  color:var(--cyan);font-size:18px;font-weight:bold;border:1px solid var(--line);
+  transition:all .15s;display:flex;align-items:center;justify-content:center}
+.wc-btn:hover{background:rgba(0,200,255,.3)}
+.wc-btn:disabled{opacity:.3;cursor:not-allowed}
+.wc-btn:hover:disabled{background:rgba(0,200,255,.15)}
+.wc-count{min-width:40px;text-align:center;font-size:15px;font-weight:bold;color:var(--txt)}
+
+.upgrade-btn{width:100%;padding:13px;margin-top:14px;border-radius:10px;
+  font-size:14px;font-weight:bold;
+  background:linear-gradient(135deg,rgba(0,255,136,.25),rgba(0,255,136,.08));
+  border:1.5px solid var(--green);color:var(--green);transition:all .15s}
+.upgrade-btn:hover{background:linear-gradient(135deg,rgba(0,255,136,.4),rgba(0,255,136,.15))}
+.upgrade-btn:active{transform:scale(.98)}
+.upgrade-btn:disabled{background:rgba(255,255,255,.05);
+  border-color:rgba(255,255,255,.1);color:var(--dim2);cursor:not-allowed}
+.upgrade-btn .cost{font-size:11px;color:var(--dim);margin-top:4px;font-weight:normal}
+
+.log-entry{padding:8px 12px;border-radius:8px;margin-bottom:6px;font-size:12px;
+  background:rgba(255,255,255,.03);border-right:3px solid var(--dim2);line-height:1.5}
+.log-entry.info{border-color:var(--cyan)}
+.log-entry.success{border-color:var(--green)}
+.log-entry.warning{border-color:var(--amber)}
+.log-entry.danger{border-color:var(--red)}
+.log-entry .time{color:var(--dim2);font-size:10px;margin-right:8px}
+
+/* ============ Toasts ============ */
+#toast-container{position:fixed;top:80px;left:50%;transform:translateX(-50%);
+  z-index:2000;display:flex;flex-direction:column;gap:8px;
+  pointer-events:none;align-items:center;width:calc(100% - 40px);max-width:400px}
+.toast{padding:11px 22px;border-radius:10px;background:rgba(4,8,18,.96);
+  border:1.5px solid var(--cyan);color:var(--txt);font-size:13px;font-weight:bold;
+  box-shadow:0 6px 24px rgba(0,0,0,.6);min-width:180px;text-align:center;
+  animation:toastIn .3s ease-out,toastOut .3s ease-in 2.6s forwards}
+.toast.success{border-color:var(--green);color:var(--green)}
+.toast.danger{border-color:var(--red);color:var(--red)}
+.toast.warning{border-color:var(--amber);color:var(--amber)}
+@keyframes toastIn{from{opacity:0;transform:translateY(-15px)}to{opacity:1;transform:translateY(0)}}
+@keyframes toastOut{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(-15px)}}
+
+/* ============ Start Screen ============ */
+#start-screen{position:fixed;inset:0;background:radial-gradient(circle at center,#0a1628,#04060e);
+  z-index:3000;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;padding:20px;text-align:center}
+#start-screen h1{font-size:clamp(40px,11vw,68px);letter-spacing:10px;
+  color:var(--cyan);margin-bottom:12px;animation:titleGlow 2.4s infinite}
+@keyframes titleGlow{
+  0%,100%{text-shadow:0 0 30px rgba(0,200,255,.7)}
+  50%{text-shadow:0 0 55px rgba(0,200,255,1),0 0 90px rgba(139,92,255,.5)}}
+#start-screen p{font-size:13px;color:var(--dim);letter-spacing:1.5px;
+  margin-bottom:36px;max-width:480px;line-height:1.9}
+#start-btn{padding:16px 54px;font-size:17px;font-weight:bold;letter-spacing:4px;
+  border-radius:14px;background:linear-gradient(135deg,rgba(0,255,136,.3),rgba(0,255,136,.1));
+  border:2px solid var(--green);color:var(--green);transition:all .2s;
+  text-shadow:0 0 10px rgba(0,255,136,.5)}
+#start-btn:hover{transform:scale(1.05);box-shadow:0 0 30px rgba(0,255,136,.5)}
+#start-btn:active{transform:scale(.98)}
+
+/* ============ Wave Preview ============ */
+.wave-preview{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.wave-preview-box{background:rgba(255,255,255,.03);border:1px solid var(--line);
+  border-radius:10px;padding:12px;text-align:center}
+.wave-preview-box .lbl{color:var(--dim);font-size:11px;margin-bottom:4px;letter-spacing:1px}
+.wave-preview-box .val{font-size:22px;font-weight:bold}
+.wave-preview-box.enemy .val{color:var(--red);text-shadow:0 0 10px rgba(255,51,68,.4)}
+.wave-preview-box.defense .val{color:var(--green);text-shadow:0 0 10px rgba(0,255,136,.4)}
+.wave-result{padding:12px;border-radius:10px;text-align:center;font-weight:bold;
+  margin-bottom:14px;font-size:14px}
+.wave-result.win{background:rgba(0,255,136,.15);color:var(--green);border:1px solid rgba(0,255,136,.3)}
+.wave-result.lose{background:rgba(255,51,68,.15);color:var(--red);border:1px solid rgba(255,51,68,.3)}
+
+.offline-summary{background:rgba(0,200,255,.08);border:1px solid var(--line);
+  border-radius:10px;padding:14px;margin-bottom:14px}
+.offline-summary h3{color:var(--cyan);font-size:14px;margin-bottom:8px}
+
+/* ============ Mobile ============ */
+@media (max-width:520px){
+  #resources{padding:8px;gap:6px}
+  .res-item{padding:5px 8px;min-width:auto;gap:4px}
+  .res-item .name{display:none}
+  .res-item .icon{font-size:14px}
+  .res-item .val{font-size:12px}
+  #buildings-grid{grid-template-columns:repeat(auto-fill,minmax(135px,1fr));padding:10px;gap:8px}
+  .building-icon{font-size:22px}
+  .building-name{font-size:12px}
+  .building-level{font-size:10px}
+  .building-effect{font-size:10px}
+  .wave-info{font-size:11px;gap:8px}
+  .wave-timer{font-size:16px;padding:4px 10px;min-width:80px}
+  .action-btn{padding:10px 4px;font-size:11px}
+  .box-body{padding:14px}
+}
+</style>
+</head>
+<body>
+
+<div id="bg"></div>
+<div id="grid-overlay"></div>
+
+<!-- Start Screen -->
+<div id="start-screen">
+  <h1>T-HAVEN</h1>
+  <p>مدينتك الأخيرة في عالم مظلم. ابنِ قاعدتك، أدر مواردك، وادفع عن منزلك موجات الليل.</p>
+  <button id="start-btn">ابدأ البناء</button>
+</div>
+
+<!-- Main Game -->
+<div id="game" style="display:none">
+  <div id="resources"></div>
+  <div id="wave-status"></div>
+  <div id="buildings-grid"></div>
+  <div id="action-bar">
+    <button class="action-btn" id="btn-log">📜 السجل</button>
+    <button class="action-btn" id="btn-help">❓ مساعدة</button>
+    <button class="action-btn" id="btn-workers">👷 العمال</button>
+    <button class="action-btn primary" id="btn-wave">⚔️ الهجمة</button>
+  </div>
+</div>
+
+<!-- Building/Workers Panel -->
+<div class="panel" id="panel-building">
+  <div class="box" id="building-box">
+    <div class="box-head">
+      <h2 id="bld-name">مبنى</h2>
+      <button class="close-x" onclick="closePanel('panel-building')">✕</button>
+    </div>
+    <div class="box-body" id="bld-body"></div>
+  </div>
+</div>
+
+<!-- Log Panel -->
+<div class="panel" id="panel-log">
+  <div class="box">
+    <div class="box-head">
+      <h2>📜 سجل الأحداث</h2>
+      <button class="close-x" onclick="closePanel('panel-log')">✕</button>
+    </div>
+    <div class="box-body" id="log-body"></div>
+  </div>
+</div>
+
+<!-- Help Panel -->
+<div class="panel" id="panel-help">
+  <div class="box green">
+    <div class="box-head">
+      <h2>❓ دليل اللعب</h2>
+      <button class="close-x" onclick="closePanel('panel-help')">✕</button>
+    </div>
+    <div class="box-body" id="help-body"></div>
+  </div>
+</div>
+
+<!-- Wave Panel -->
+<div class="panel" id="panel-wave">
+  <div class="box red">
+    <div class="box-head">
+      <h2>⚔️ الهجمة القادمة</h2>
+      <button class="close-x" onclick="closePanel('panel-wave')">✕</button>
+    </div>
+    <div class="box-body" id="wave-body"></div>
+  </div>
+</div>
+
+<!-- Offline Panel -->
+<div class="panel" id="panel-offline">
+  <div class="box green">
+    <div class="box-head">
+      <h2>🌙 مرحباً بعودتك</h2>
+      <button class="close-x" onclick="closePanel('panel-offline')">✕</button>
+    </div>
+    <div class="box-body" id="offline-body"></div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
+<script>
+/* ============================================================
+   T-HAVEN — إدارة القاعدة والدفاع
+   ============================================================ */
+
+/* ---------- بيانات المباني ---------- */
+const BUILDINGS = {
+  lumbermill:{name:'منشرة',icon:'🌲',desc:'تنتج الخشب بمرور الوقت',maxLevel:20,
+    baseCost:{wood:30},costMult:1.5,produces:'wood',baseRate:0.5,maxWorkers:3,unlock:0},
+  mine:{name:'منجم',icon:'⛏️',desc:'يستخرج الحديد من باطن الأرض',maxLevel:20,
+    baseCost:{wood:60},costMult:1.5,produces:'iron',baseRate:0.3,maxWorkers:3,unlock:0},
+  farm:{name:'مزرعة',icon:'🌾',desc:'تنتج الغذاء لإطعام العمال والجنود',maxLevel:20,
+    baseCost:{wood:40},costMult:1.5,produces:'food',baseRate:0.6,maxWorkers:3,unlock:0},
+  storage:{name:'مخزن',icon:'📦',desc:'يزيد سعة الموارد',maxLevel:10,
+    baseCost:{wood:80,iron:20},costMult:1.8,effect:'capacity',
+    baseVal:200,perLevel:150,maxWorkers:0,unlock:0},
+  wall:{name:'سور',icon:'🧱',desc:'يزيد قوة الدفاع',maxLevel:15,
+    baseCost:{wood:60,iron:20},costMult:1.7,effect:'defense',
+    baseVal:15,perLevel:12,maxWorkers:0,unlock:0},
+  tower:{name:'برج',icon:'🗼',desc:'دفاع إضافي ورؤية أوسع',maxLevel:15,
+    baseCost:{wood:100,iron:40},costMult:1.7,effect:'defense',
+    baseVal:20,perLevel:15,maxWorkers:0,unlock:3},
+  barracks:{name:'ثكنة',icon:'⚔️',desc:'تدرّب جنوداً للدفاع',maxLevel:10,
+    baseCost:{wood:150,iron:80,food:40},costMult:1.8,effect:'soldiers',
+    baseVal:1,perLevel:1,maxWorkers:1,unlock:4},
+  market:{name:'سوق',icon:'🏪',desc:'يفتح تبادل الموارد مقابل الذهب',maxLevel:5,
+    baseCost:{wood:200,iron:100,gold:30},costMult:2,effect:'market',
+    baseVal:1,maxWorkers:0,unlock:6},
+  hospital:{name:'مستشفى',icon:'🏥',desc:'يعالج الجنود الجرحى تلقائياً',maxLevel:8,
+    baseCost:{wood:180,iron:120,gold:20},costMult:1.9,effect:'heal',
+    baseVal:5,perLevel:5,maxWorkers:1,unlock:5},
+  workshop:{name:'ورشة',icon:'🔧',desc:'تحسّن إنتاج جميع المباني',maxLevel:10,
+    baseCost:{wood:250,iron:150,gold:50},costMult:2,effect:'boost',
+    baseVal:5,perLevel:5,maxWorkers:1,unlock:7}
+};
+
+const RES_META = {
+  wood:{name:'خشب',icon:'🌲'},
+  iron:{name:'حديد',icon:'⛏️'},
+  food:{name:'غذاء',icon:'🌾'},
+  gold:{name:'ذهب',icon:'💰'}
+};
+
+/* ---------- حالة اللعبة ---------- */
+let STATE = {
+  resources:{wood:100,iron:40,food:60,gold:25},
+  maxResources:{wood:200,iron:200,food:200},
+  totalWorkers:3,
+  soldiers:0,
+  wounded:0,
+  buildings:{},
+  wave:{number:1,nextTime:0,strength:8},
+  log:[],
+  lastTick:0,
+  lastSave:0,
+  wavesSurvived:0,
+  wavesLost:0,
+  started:false,
+  firstWaveDelay:120000, // دقيقتان للهجمة الأولى
+  waveInterval:180000    // 3 دقائق بين الهجمات
+};
+
+let tickHandle = null;
+let currentPanel = null; // 'building' أو 'workers'
+
+/* ---------- الحفظ والتحميل ---------- */
+const SAVE_KEY = 'thaven_save_v1';
+
+function saveGame(){
+  try{
+    localStorage.setItem(SAVE_KEY, JSON.stringify({
+      resources:STATE.resources,
+      maxResources:STATE.maxResources,
+      totalWorkers:STATE.totalWorkers,
+      soldiers:STATE.soldiers,
+      wounded:STATE.wounded,
+      buildings:STATE.buildings,
+      wave:STATE.wave,
+      log:STATE.log.slice(0,80),
+      lastSave:Date.now(),
+      wavesSurvived:STATE.wavesSurvived,
+      wavesLost:STATE.wavesLost,
+      started:STATE.started
+    }));
+  }catch(e){console.warn('save failed',e);}
+}
+
+function loadGame(){
+  try{
+    const raw = localStorage.getItem(SAVE_KEY);
+    if(!raw) return false;
+    const d = JSON.parse(raw);
+    STATE.resources = d.resources || STATE.resources;
+    STATE.maxResources = d.maxResources || STATE.maxResources;
+    STATE.totalWorkers = d.totalWorkers || 3;
+    STATE.soldiers = d.soldiers || 0;
+    STATE.wounded = d.wounded || 0;
+    STATE.buildings = d.buildings || {};
+    STATE.wave = d.wave || STATE.wave;
+    STATE.log = d.log || [];
+    STATE.wavesSurvived = d.wavesSurvived || 0;
+    STATE.wavesLost = d.wavesLost || 0;
+    STATE.started = d.started || false;
+    
+    // ضمان وجود كل المباني
+    for(const id in BUILDINGS){
+      if(!STATE.buildings[id]) STATE.buildings[id] = {level:0,workers:0};
+    }
+    
+    // تقدّم أثناء الغياب
+    const now = Date.now();
+    const elapsed = Math.min((now - (d.lastSave || now))/1000, 8*3600);
+    if(elapsed > 30 && STATE.started){
+      processOffline(elapsed);
+    }
+    
+    // إذا فاتت الهجمة أثناء الغياب نعطي مهلة
+    if(STATE.wave.nextTime < now){
+      STATE.wave.nextTime = now + 60000;
+    }
+    return true;
+  }catch(e){
+    console.warn('load failed',e);
+    return false;
+  }
+}
+
+function processOffline(seconds){
+  const gained = {wood:0,iron:0,food:0,gold:0};
+  for(const id in BUILDINGS){
+    const t = BUILDINGS[id];
+    const b = STATE.buildings[id];
+    if(!b || b.level===0 || !t.produces) continue;
+    gained[t.produces] += calcProduction(id) * seconds;
+  }
+  for(const r in gained){
+    if(r==='gold'){
+      STATE.resources.gold += Math.floor(gained.gold);
+    }else{
+      STATE.resources[r] = Math.min(STATE.maxResources[r], STATE.resources[r]+Math.floor(gained[r]));
+    }
+  }
+  showOfflineSummary(seconds, gained);
+  addLog(`عدت بعد ${fmtDuration(seconds)}، تم تحصيل موارد.`,'info');
+}
+
+function showOfflineSummary(seconds, gained){
+  const body = document.getElementById('offline-body');
+  let html = `<div class="offline-summary">
+    <h3>🌙 غبت لمدة ${fmtDuration(seconds)}</h3>
+    <p style="font-size:12px;color:var(--dim);line-height:1.6;">
+      استمرت قاعدتك في العمل (الحد 8 ساعات).
+    </p></div><div style="margin:12px 0">`;
+  for(const r in gained){
+    if(gained[r] > 0){
+      html += `<div class="detail-row">
+        <span class="lbl">${RES_META[r].icon} ${RES_META[r].name}</span>
+        <span class="val green">+${Math.floor(gained[r])}</span>
+      </div>`;
+    }
+  }
+  html += `</div>
+    <button class="upgrade-btn" onclick="closePanel('panel-offline')">شكراً</button>`;
+  body.innerHTML = html;
+  openPanel('panel-offline');
+}
+
+/* ---------- الحسابات ---------- */
+function calcProduction(id){
+  const t = BUILDINGS[id];
+  const b = STATE.buildings[id];
+  if(!t || !b || b.level===0 || !t.produces) return 0;
+  let rate = t.baseRate * b.level;
+  rate += b.workers * t.baseRate * 0.5;
+  const w = STATE.buildings.workshop;
+  if(w && w.level>0 && id!=='workshop') rate *= 1 + w.level*0.05;
+  return rate;
+}
+
+function calcDefense(){
+  let d = 0;
+  const wall = STATE.buildings.wall;
+  if(wall && wall.level>0) d += 15 + (wall.level-1)*12;
+  const tower = STATE.buildings.tower;
+  if(tower && tower.level>0) d += 20 + (tower.level-1)*15;
+  d += STATE.soldiers * 10;
+  return d;
+}
+
+function calcStorage(){
+  const s = STATE.buildings.storage;
+  return 200 + (s ? s.level * 150 : 0);
+}
+
+function getCost(id){
+  const t = BUILDINGS[id];
+  const b = STATE.buildings[id];
+  const mult = Math.pow(t.costMult, b.level);
+  const cost = {};
+  for(const r in t.baseCost) cost[r] = Math.floor(t.baseCost[r] * mult);
+  return cost;
+}
+
+function canAfford(cost){
+  for(const r in cost) if(STATE.resources[r] < cost[r]) return false;
+  return true;
+}
+
+function pay(cost){
+  for(const r in cost) STATE.resources[r] -= cost[r];
+}
+
+function fmtNum(n){
+  if(n>=1e6) return (n/1e6).toFixed(1)+'M';
+  if(n>=1e3) return (n/1e3).toFixed(1)+'K';
+  return Math.floor(n).toString();
+}
+function fmtDuration(s){
+  if(s<60) return Math.floor(s)+'ث';
+  if(s<3600) return Math.floor(s/60)+'د';
+  const h=Math.floor(s/3600), m=Math.floor((s%3600)/60);
+  return h+'س '+m+'د';
+}
+function fmtTime(ms){
+  const t = Math.max(0,Math.floor(ms/1000));
+  return String(Math.floor(t/60)).padStart(2,'0')+':'+String(t%60).padStart(2,'0');
+}
+
+function applyMax(){
+  const m = calcStorage();
+  STATE.maxResources.wood = m;
+  STATE.maxResources.iron = m;
+  STATE.maxResources.food = m;
+  for(const r of ['wood','iron','food']){
+    if(STATE.resources[r] > m) STATE.resources[r] = m;
+  }
+}
+
+/* ---------- العمال ---------- */
+function getAssigned(){
+  let a=0;
+  for(const id in STATE.buildings) a += STATE.buildings[id].workers;
+  return a;
+}
+function getFree(){ return STATE.totalWorkers - getAssigned(); }
+
+function assignWorker(id, delta){
+  const t = BUILDINGS[id];
+  const b = STATE.buildings[id];
+  if(t.maxWorkers===0) return;
+  if(delta>0){
+    if(getFree()<=0){ toast('لا يوجد عمال متاحون','warning'); return; }
+    if(b.workers >= t.maxWorkers){ toast('أقصى عمال لهذا المبنى','warning'); return; }
+    if(b.workers >= b.level){ toast('طوّر المبنى أولاً','warning'); return; }
+    b.workers++;
+  }else{
+    if(b.workers<=0) return;
+    b.workers--;
+  }
+  updateUI();
+  refreshOpenPanel();
+  saveGame();
+}
+
+function hireWorker(){
+  const cost = 50 + (STATE.totalWorkers-3)*25;
+  if(STATE.resources.gold < cost){ toast(`تحتاج ${cost} ذهب`,'danger'); return; }
+  STATE.resources.gold -= cost;
+  STATE.totalWorkers++;
+  addLog(`تم تعيين عامل جديد (${STATE.totalWorkers})`,'success');
+  toast('عامل جديد!','success');
+  updateUI();
+  refreshOpenPanel();
+  saveGame();
+}
+
+/* ---------- المباني ---------- */
+function isUnlocked(id){
+  const t = BUILDINGS[id];
+  const b = STATE.buildings[id];
+  if(b.level>0) return true;
+  if(t.unlock===0) return true;
+  let total=0;
+  for(const bid in STATE.buildings) total += STATE.buildings[bid].level;
+  return total >= t.unlock;
+}
+
+function upgradeBuilding(id){
+  const t = BUILDINGS[id];
+  const b = STATE.buildings[id];
+  if(b.level >= t.maxLevel){ toast('أقصى مستوى','warning'); return; }
+  if(!isUnlocked(id)){ toast('يجب تطوير مباني أخرى أولاً','warning'); return; }
+  const cost = getCost(id);
+  if(!canAfford(cost)){ toast('موارد غير كافية','danger'); return; }
+  pay(cost);
+  b.level++;
+  if(id==='storage') applyMax();
+  if(id==='barracks') STATE.soldiers += t.perLevel;
+  addLog(`${t.name} → مستوى ${b.level}`,'success');
+  toast(`${t.name} مستوى ${b.level}`,'success');
+  updateUI();
+  refreshOpenPanel();
+  saveGame();
+}
+
+/* ---------- الهجمات ---------- */
+function getWavePower(){
+  return Math.floor(8 * Math.pow(1.25, STATE.wave.number-1));
+}
+
+function startWave(){
+  const enemy = STATE.wave.strength;
+  const def = calcDefense();
+  const win = def >= enemy;
+  
+  if(win){
+    const gold = Math.floor(enemy*0.8) + 10;
+    const wood = Math.floor(enemy*1.2);
+    const iron = Math.floor(enemy*0.5);
+    STATE.resources.gold += gold;
+    STATE.resources.wood = Math.min(STATE.maxResources.wood, STATE.resources.wood+wood);
+    STATE.resources.iron = Math.min(STATE.maxResources.iron, STATE.resources.iron+iron);
+    STATE.wavesSurvived++;
+    if(STATE.soldiers>0) STATE.wounded += Math.floor(STATE.soldiers*0.15);
+    addLog(`✅ صدت الهجمة ${STATE.wave.number} (+${gold}💰)`,'success');
+    toast(`انتصار! +${gold}💰`,'success');
+  }else{
+    const lw = Math.floor(STATE.resources.wood*0.2);
+    const li = Math.floor(STATE.resources.iron*0.2);
+    const lf = Math.floor(STATE.resources.food*0.15);
+    STATE.resources.wood -= lw;
+    STATE.resources.iron -= li;
+    STATE.resources.food -= lf;
+    if(STATE.soldiers>0){
+      const lost = Math.min(3, STATE.soldiers);
+      STATE.soldiers -= lost;
+      STATE.wounded += Math.floor(lost*0.5);
+    }
+    STATE.wavesLost++;
+    addLog(`❌ فشلت الهجمة ${STATE.wave.number} (-${lw}🌲 -${li}⛏️)`,'danger');
+    toast('هزيمة! خسرت موارد','danger');
+  }
+  
+  STATE.wave.number++;
+  STATE.wave.strength = getWavePower();
+  STATE.wave.nextTime = Date.now() + STATE.waveInterval;
+  updateUI();
+  saveGame();
+}
+
+/* ---------- الحلقة الرئيسية ---------- */
+function tick(){
+  const now = Date.now();
+  const dt = Math.min(5, (now - STATE.lastTick)/1000 || 0);
+  STATE.lastTick = now;
+  
+  // إنتاج الموارد
+  for(const id in BUILDINGS){
+    const t = BUILDINGS[id];
+    const b = STATE.buildings[id];
+    if(!t.produces || !b || b.level===0) continue;
+    const rate = calcProduction(id);
+    STATE.resources[t.produces] = Math.min(
+      STATE.maxResources[t.produces],
+      STATE.resources[t.produces] + rate*dt
+    );
+  }
+  
+  // استهلاك الغذاء
+  const foodUse = (getAssigned()*0.05 + STATE.soldiers*0.08) * dt;
+  STATE.resources.food = Math.max(0, STATE.resources.food - foodUse);
+  
+  // شفاء الجرحى
+  if(STATE.wounded > 0){
+    const h = STATE.buildings.hospital;
+    const rate = (h && h.level>0) ? h.level*0.05 : 0.005;
+    const healed = Math.min(STATE.wounded, rate*dt);
+    STATE.wounded -= healed;
+    STATE.soldiers += healed;
+  }
+  
+  // تفعيل الهجمة
+  if(STATE.wave.nextTime>0 && now >= STATE.wave.nextTime){
+    startWave();
+  }
+  
+  // حفظ تلقائي
+  if(now - STATE.lastSave > 30000){
+    saveGame();
+    STATE.lastSave = now;
+  }
+  
+  updateUI();
+}
+
+/* ---------- رسم الواجهة ---------- */
+function updateUI(){
+  drawResources();
+  drawWaveStatus();
+  drawBuildings();
+}
+
+function drawResources(){
+  const el = document.getElementById('resources');
+  const html = [];
+  for(const r of ['wood','iron','food']){
+    const meta = RES_META[r];
+    const v = STATE.resources[r], m = STATE.maxResources[r];
+    const full = v >= m;
+    html.push(`<div class="res-item ${r} ${full?'full':''}">
+      <span class="icon">${meta.icon}</span>
+      <div><div class="name">${meta.name}</div>
+      <div class="val">${fmtNum(v)}/${fmtNum(m)}</div></div>
+    </div>`);
+  }
+  html.push(`<div class="res-item gold">
+    <span class="icon">💰</span>
+    <div><div class="name">ذهب</div>
+    <div class="val">${fmtNum(STATE.resources.gold)}</div></div>
+  </div>`);
+  html.push(`<div class="res-item workers" id="workers-item">
+    <span class="icon">👷</span>
+    <div><div class="name">عمال</div>
+    <div class="val">${getFree()}/${STATE.totalWorkers}</div></div>
+  </div>`);
+  el.innerHTML = html.join('');
+  
+  const wi = document.getElementById('workers-item');
+  if(wi) wi.addEventListener('click', openWorkersPanel);
+}
+
+function drawWaveStatus(){
+  const el = document.getElementById('wave-status');
+  const left = STATE.wave.nextTime - Date.now();
+  const def = calcDefense();
+  const enemy = STATE.wave.strength;
+  const urgent = left < 15000;
+  const safe = def >= enemy;
+  const total = STATE.waveInterval;
+  const pct = Math.max(0, Math.min(100, (left/total)*100));
+  
+  el.innerHTML = `
+    <div class="wave-info">
+      <div><span class="lbl">الهجمة</span> <strong>#${STATE.wave.number}</strong></div>
+      <div><span class="lbl">العدو</span> <span class="danger">${enemy}</span></div>
+      <div><span class="lbl">دفاعك</span> <span class="${safe?'safe':'danger'}">${def}</span></div>
+      <div><span class="lbl">الحالة</span> <span class="${safe?'safe':'danger'}">${safe?'آمن':'خطر'}</span></div>
+    </div>
+    <div class="wave-timer ${urgent?'urgent':''}">${fmtTime(left)}</div>
+    <div class="wave-bar"><div class="wave-bar-fill" style="width:${pct}%"></div></div>
+  `;
+}
+
+function drawBuildings(){
+  const el = document.getElementById('buildings-grid');
+  const html = [];
+  for(const id in BUILDINGS){
+    const t = BUILDINGS[id];
+    const b = STATE.buildings[id];
+    const unlocked = isUnlocked(id);
+    const maxed = b.level >= t.maxLevel;
+    let effect = '';
+    if(t.produces){
+      effect = `+${calcProduction(id).toFixed(1)} ${RES_META[t.produces].name}/ث`;
+    }else if(t.effect==='defense'){
+      effect = `دفاع +${t.baseVal + Math.max(0,b.level-1)*t.perLevel}`;
+    }else if(t.effect==='capacity'){
+      effect = `سعة +${t.baseVal + b.level*t.perLevel}`;
+    }else if(t.effect==='soldiers'){
+      effect = b.level>0 ? `جنود +${b.level}` : 'تدريب جنود';
+    }else if(t.effect==='market'){
+      effect = 'تبادل الموارد';
+    }else if(t.effect==='heal'){
+      effect = b.level>0 ? `شفاء ${b.level*5}%/ث` : 'علاج الجنود';
+    }else if(t.effect==='boost'){
+      effect = b.level>0 ? `إنتاج +${b.level*5}%` : 'تحسين الإنتاج';
+    }
+    
+    let dots = '';
+    if(t.maxWorkers>0){
+      dots = '<div class="building-workers">';
+      for(let i=0;i<t.maxWorkers;i++){
+        dots += `<div class="worker-dot ${i<b.workers?'active':''}"></div>`;
+      }
+      dots += '</div>';
+    }
+    
+    let badge = '';
+    if(!unlocked && b.level===0){
+      badge = `<div class="building-badge">🔒 ${t.unlock}</div>`;
+    }
+    
+    html.push(`<div class="building-card ${!unlocked&&b.level===0?'locked':''} ${maxed?'maxed':''}"
+      onclick="openBuilding('${id}')">
+      ${badge}
+      <span class="building-icon">${t.icon}</span>
+      <div class="building-name">${t.name}</div>
+      <div class="building-level">مستوى ${b.level}${maxed?' ⭐':''}</div>
+      <div class="building-effect">${effect}</div>
+      ${dots}
+    </div>`);
+  }
+  el.innerHTML = html.join('');
+}
+
+/* ---------- لوحة المبنى ---------- */
+let currentBuilding = null;
+
+function openBuilding(id){
+  currentPanel = 'building';
+  currentBuilding = id;
+  const t = BUILDINGS[id];
+  const b = STATE.buildings[id];
+  
+  if(!isUnlocked(id) && b.level===0){
+    toast(`يفتح بعد ${t.unlock} مستوى إجمالي`,'warning');
+    return;
+  }
+  
+  document.getElementById('bld-name').textContent = `${t.icon} ${t.name}`;
+  const body = document.getElementById('bld-body');
+  const maxed = b.level >= t.maxLevel;
+  const cost = maxed ? null : getCost(id);
+  const canUp = cost && canAfford(cost);
+  
+  let html = `<p style="font-size:12px;color:var(--dim);margin-bottom:14px;line-height:1.6">${t.desc}</p>`;
+  html += `<div class="detail-row"><span class="lbl">المستوى</span>
+    <span class="val amber">${b.level}/${t.maxLevel}</span></div>`;
+  
+  if(t.produces){
+    html += `<div class="detail-row"><span class="lbl">الإنتاج</span>
+      <span class="val green">+${calcProduction(id).toFixed(2)}/ث</span></div>`;
+  }
+  if(t.effect==='defense' && b.level>0){
+    html += `<div class="detail-row"><span class="lbl">قوة الدفاع</span>
+      <span class="val green">+${t.baseVal + (b.level-1)*t.perLevel}</span></div>`;
+  }
+  if(t.effect==='capacity'){
+    html += `<div class="detail-row"><span class="lbl">السعة الإضافية</span>
+      <span class="val green">+${b.level*t.perLevel}</span></div>`;
+  }
+  if(t.effect==='soldiers' && b.level>0){
+    html += `<div class="detail-row"><span class="lbl">جنود مدربون</span>
+      <span class="val green">+${b.level}</span></div>`;
+  }
+  
+  if(t.maxWorkers>0 && b.level>0){
+    const maxHere = Math.min(t.maxWorkers, b.level);
+    html += `<div class="worker-control">
+      <div class="wc-info">👷 عمال
+        <small>يزيدون الإنتاج بـ 50% لكل عامل</small>
+      </div>
+      <div class="wc-controls">
+        <button class="wc-btn" onclick="assignWorker('${id}',-1)" ${b.workers<=0?'disabled':''}>−</button>
+        <div class="wc-count">${b.workers}/${maxHere}</div>
+        <button class="wc-btn" onclick="assignWorker('${id}',1)"
+          ${b.workers>=maxHere || getFree()<=0 ? 'disabled':''}>+</button>
+      </div>
+    </div>`;
+  }
+  
+  if(maxed){
+    html += `<button class="upgrade-btn" disabled>⭐ أقصى مستوى</button>`;
+  }else{
+    const costText = Object.entries(cost).map(([r,a])=>{
+      const meta = RES_META[r];
+      const ok = STATE.resources[r] >= a;
+      return `<span style="color:${ok?'var(--green)':'var(--red)'}">${meta.icon} ${a}</span>`;
+    }).join(' · ');
+    html += `<button class="upgrade-btn" onclick="upgradeBuilding('${id}')"
+      ${!canUp?'disabled':''}>
+      ⬆️ تطوير إلى المستوى ${b.level+1}
+      <div class="cost">${costText}</div>
+    </button>`;
+  }
+  
+  body.innerHTML = html;
+  openPanel('panel-building');
+}
+
+/* ---------- لوحة العمال ---------- */
+function openWorkersPanel(){
+  currentPanel = 'workers';
+  document.getElementById('bld-name').textContent = '👷 إدارة العمال';
+  const body = document.getElementById('bld-body');
+  const free = getFree();
+  const assigned = getAssigned();
+  const cost = 50 + (STATE.totalWorkers-3)*25;
+  
+  let html = `
+    <div class="detail-row"><span class="lbl">إجمالي العمال</span>
+      <span class="val">${STATE.totalWorkers}</span></div>
+    <div class="detail-row"><span class="lbl">مُعيَّنون</span>
+      <span class="val amber">${assigned}</span></div>
+    <div class="detail-row"><span class="lbl">متاحون</span>
+      <span class="val green">${free}</span></div>
+    <div class="detail-row"><span class="lbl">استهلاك الغذاء</span>
+      <span class="val red">${(assigned*0.05).toFixed(2)}/ث</span></div>
+    <h3 style="color:var(--cyan);font-size:14px;margin:16px 0 8px">تعيين العمال</h3>`;
+  
+  let anyBuilding = false;
+  for(const id in BUILDINGS){
+    const t = BUILDINGS[id];
+    const b = STATE.buildings[id];
+    if(t.maxWorkers===0 || b.level===0) continue;
+    anyBuilding = true;
+    const maxHere = Math.min(t.maxWorkers, b.level);
+    html += `<div class="worker-control">
+      <div class="wc-info">${t.icon} ${t.name}<small>${b.workers}/${maxHere} عامل</small></div>
+      <div class="wc-controls">
+        <button class="wc-btn" onclick="assignWorker('${id}',-1)" ${b.workers<=0?'disabled':''}>−</button>
+        <div class="wc-count">${b.workers}</div>
+        <button class="wc-btn" onclick="assignWorker('${id}',1)"
+          ${b.workers>=maxHere || free<=0 ? 'disabled':''}>+</button>
+      </div>
+    </div>`;
+  }
+  if(!anyBuilding){
+    html += `<p style="color:var(--dim);text-align:center;padding:16px;font-size:12px">
+      لا توجد مبانٍ تحتاج عمالاً بعد. طوّر منشرة أو منجماً أو مزرعة.</p>`;
+  }
+  
+  html += `<button class="upgrade-btn" onclick="hireWorker()"
+    ${STATE.resources.gold < cost ? 'disabled':''}>
+    👷 تعيين عامل جديد
+    <div class="cost">التكلفة: 💰 ${cost}</div>
+  </button>`;
+  
+  body.innerHTML = html;
+  openPanel('panel-building');
+}
+
+function refreshOpenPanel(){
+  if(!document.getElementById('panel-building').classList.contains('active')) return;
+  if(currentPanel==='workers') openWorkersPanel();
+  else if(currentPanel==='building' && currentBuilding) openBuilding(currentBuilding);
+}
+
+/* ---------- لوحة السجل ---------- */
+function addLog(text, type='info'){
+  STATE.log.unshift({text, type, time:Date.now()});
+  if(STATE.log.length>80) STATE.log = STATE.log.slice(0,80);
+}
+
+function renderLog(){
+  const body = document.getElementById('log-body');
+  if(STATE.log.length===0){
+    body.innerHTML = '<p style="color:var(--dim);text-align:center;padding:20px">لا توجد أحداث</p>';
+    return;
+  }
+  body.innerHTML = STATE.log.map(e=>{
+    const t = new Date(e.time).toLocaleTimeString('ar',{hour:'2-digit',minute:'2-digit'});
+    return `<div class="log-entry ${e.type}">${e.text}<span class="time">${t}</span></div>`;
+  }).join('');
+}
+
+/* ---------- لوحة الهجمة ---------- */
+function renderWavePanel(){
+  const body = document.getElementById('wave-body');
+  const def = calcDefense();
+  const enemy = STATE.wave.strength;
+  const win = def >= enemy;
+  const left = STATE.wave.nextTime - Date.now();
+  
+  let html = `
+    <div class="wave-preview">
+      <div class="wave-preview-box enemy">
+        <div class="lbl">قوة العدو</div><div class="val">${enemy}</div>
+      </div>
+      <div class="wave-preview-box defense">
+        <div class="lbl">دفاعك</div><div class="val">${def}</div>
+      </div>
+    </div>
+    <div class="wave-result ${win?'win':'lose'}">
+      ${win ? '✅ من المتوقع أن تصد الهجمة' : '⚠️ خطر - ستفشل في الصد'}
+    </div>
+    <div class="detail-row"><span class="lbl">متبقي</span>
+      <span class="val">${fmtTime(left)}</span></div>
+    <div class="detail-row"><span class="lbl">الهجمة</span>
+      <span class="val">#${STATE.wave.number}</span></div>
+    <h3 style="color:var(--cyan);font-size:13px;margin:14px 0 8px">تفاصيل الدفاع</h3>`;
+  
+  const wall = STATE.buildings.wall;
+  if(wall && wall.level>0){
+    html += `<div class="detail-row"><span class="lbl">🧱 سور (${wall.level})</span>
+      <span class="val green">+${15 + (wall.level-1)*12}</span></div>`;
+  }
+  const tower = STATE.buildings.tower;
+  if(tower && tower.level>0){
+    html += `<div class="detail-row"><span class="lbl">🗼 برج (${tower.level})</span>
+      <span class="val green">+${20 + (tower.level-1)*15}</span></div>`;
+  }
+  if(STATE.soldiers>0){
+    html += `<div class="detail-row"><span class="lbl">⚔️ جنود (${STATE.soldiers})</span>
+      <span class="val green">+${STATE.soldiers*10}</span></div>`;
+  }
+  if(def===0){
+    html += `<p style="color:var(--amber);text-align:center;padding:10px;font-size:12px">
+      ليس لديك دفاع! ابنِ سوراً أو برجاً.</p>`;
+  }
+  
+  html += `<button class="upgrade-btn" onclick="prepareNow()" style="margin-top:16px">
+    ⚔️ الاستعداد الآن
+    <div class="cost">تُطلق الهجمة فوراً</div>
+  </button>`;
+  
+  body.innerHTML = html;
+}
+
+function prepareNow(){
+  if(confirm('هل أنت مستعد لمواجهة الهجمة الآن؟')){
+    STATE.wave.nextTime = Date.now();
+    closePanel('panel-wave');
+  }
+}
+
+/* ---------- لوحة المساعدة ---------- */
+function renderHelpPanel(){
+  document.getElementById('help-body').innerHTML = `
+    <div style="font-size:12px;line-height:1.9">
+      <h3 style="color:var(--green);margin-bottom:8px">🎯 الهدف</h3>
+      <p>ابنِ قاعدتك، طوّر مبانيها، وادفع عن مدينتك موجات الليل.</p>
+      <h3 style="color:var(--green);margin:14px 0 8px">💰 الموارد</h3>
+      <p>🌲 خشب للبناء · ⛏️ حديد للبناء المتقدم · 🌾 غذاء يستهلكه العمال والجنود · 💰 ذهب للترقيات والجزية.</p>
+      <h3 style="color:var(--green);margin:14px 0 8px">🏗️ المباني</h3>
+      <p>اضغط أي مبنى لفتحه وتطويره. المباني المنتجة تحتاج عمالاً لزيادة إنتاجها.</p>
+      <h3 style="color:var(--green);margin:14px 0 8px">👷 العمال</h3>
+      <p>عيّن عمالاً للمباني الإنتاجية. كل عامل يستهلك غذاءً إضافياً.</p>
+      <h3 style="color:var(--green);margin:14px 0 8px">⚔️ الهجمات</h3>
+      <p>كل 3 دقائق تهاجمك موجة. إذا كان دفاعك ≥ قوة العدو فستصد الهجمة وتربح ذهباً وموارد. إذا فشلت تخسر موارد وجنود.</p>
+      <h3 style="color:var(--green);margin:14px 0 8px">💾 الحفظ</h3>
+      <p>تُحفظ تلقائياً. عند العودة ستستلم مواردك المتراكمة أثناء غيابك (حتى 8 ساعات).</p>
+      <button class="upgrade-btn" onclick="closePanel('panel-help')" style="margin-top:18px">فهمت!</button>
+    </div>`;
+}
+
+/* ---------- أدوات ---------- */
+function openPanel(id){
+  document.getElementById(id).classList.add('active');
+  if(id==='panel-log') renderLog();
+  if(id==='panel-wave') renderWavePanel();
+  if(id==='panel-help') renderHelpPanel();
+}
+function closePanel(id){
+  document.getElementById(id).classList.remove('active');
+  if(id==='panel-building'){ currentPanel = null; currentBuilding = null; }
+}
+
+function toast(text, type='info'){
+  const c = document.getElementById('toast-container');
+  const el = document.createElement('div');
+  el.className = 'toast '+type;
+  el.textContent = text;
+  c.appendChild(el);
+  setTimeout(()=>el.remove(), 3000);
+}
+
+/* ---------- الإقلاع ---------- */
+function startGame(){
+  document.getElementById('start-screen').style.display = 'none';
+  document.getElementById('game').style.display = 'flex';
+  
+  const loaded = loadGame();
+  if(!loaded){
+    for(const id in BUILDINGS) STATE.buildings[id] = {level:0,workers:0};
+    STATE.buildings.lumbermill.level = 1;
+    STATE.wave.nextTime = Date.now() + STATE.firstWaveDelay;
+    STATE.wave.number = 1;
+    STATE.wave.strength = 8;
+    STATE.started = true;
+    STATE.lastTick = Date.now();
+    addLog('مرحباً بك في T-HAVEN! ابدأ ببناء سور للدفاع.','success');
+    saveGame();
+  }else{
+    addLog('عدت إلى T-HAVEN.','info');
+  }
+  
+  applyMax();
+  STATE.lastTick = Date.now();
+  updateUI();
+  if(tickHandle) clearInterval(tickHandle);
+  tickHandle = setInterval(tick, 1000);
+  
+  if(!loaded) setTimeout(()=>toast('مرحباً! ابدأ ببناء سور 🧱','success'), 600);
+}
+
+/* ---------- ربط الأزرار ---------- */
+document.getElementById('start-btn').addEventListener('click', startGame);
+document.getElementById('btn-log').addEventListener('click', ()=>openPanel('panel-log'));
+document.getElementById('btn-help').addEventListener('click', ()=>openPanel('panel-help'));
+document.getElementById('btn-workers').addEventListener('click', openWorkersPanel);
+document.getElementById('btn-wave').addEventListener('click', ()=>openPanel('panel-wave'));
+
+/* حفظ عند إغلاق الصفحة */
+window.addEventListener('beforeunload', ()=>{ if(STATE.started) saveGame(); });
+document.addEventListener('visibilitychange', ()=>{
+  if(document.hidden && STATE.started) saveGame();
+});
+
+/* منع التكبير المزدوج على الجوال */
+let lastTouch = 0;
+document.addEventListener('touchend', e=>{
+  const now = Date.now();
+  if(now - lastTouch <= 300) e.preventDefault();
+  lastTouch = now;
+}, {passive:false});
+</script>
+</body>
+  </html>
