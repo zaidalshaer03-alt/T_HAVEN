@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<title>T-HAVEN — الحصار الليلي</title>
+<title>انتقام السلاطين — الحصار الليلي</title>
 <style>
 :root{
-  --ink:#05070f; --ink2:#0a0f1c; --surf:#101728; --surf2:#17203a;
+  --ink:#05070f; --ink2:#0a0f1c; --surf:#101728; --surf2:#17203a; --surf3:#1e2947;
   --line:rgba(0,213,255,.20); --line2:rgba(0,213,255,.45);
   --cyan:#00d5ff; --blue:#3d7bff; --violet:#9b5cff;
   --green:#00ff9c; --amber:#ffb020; --gold:#ffd24a; --ember:#ff7a2f;
@@ -33,18 +33,85 @@ button{font-family:inherit;cursor:pointer;border:none;color:inherit;background:n
 #bg::after{content:'';position:absolute;inset:0;opacity:.35;background-image:
   linear-gradient(rgba(0,213,255,.035) 1px,transparent 1px),
   linear-gradient(90deg,rgba(0,213,255,.035) 1px,transparent 1px);background-size:46px 46px}
-
 #errbar{position:fixed;top:0;left:0;right:0;z-index:99999;display:none;direction:ltr;text-align:left;
   background:linear-gradient(90deg,#b31237,#ff2e55);color:#fff;padding:8px 12px;font-size:11px;font-family:monospace;white-space:pre-wrap;max-height:30vh;overflow:auto}
 
-#game{position:fixed;inset:0;display:none;flex-direction:column;z-index:10}
+/* ===== شاشة البداية ===== */
+#start{position:fixed;inset:0;z-index:3000;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:22px;text-align:center;overflow-y:auto;
+  background:radial-gradient(ellipse at 50% 30%,#0d1c33,#05070f 70%)}
+#start::before{content:'';position:absolute;inset:0;pointer-events:none;background:
+  radial-gradient(circle at 20% 80%,rgba(255,122,47,.14),transparent 45%),
+  radial-gradient(circle at 80% 20%,rgba(0,213,255,.14),transparent 45%);animation:drift 14s ease-in-out infinite alternate}
+@keyframes drift{to{transform:translate3d(0,-18px,0) scale(1.06)}}
+#start h1{position:relative;font-size:clamp(34px,8.5vw,58px);letter-spacing:6px;color:var(--cyan);margin-bottom:8px;animation:tg 2.6s infinite}
+@keyframes tg{0%,100%{text-shadow:0 0 30px rgba(0,213,255,.7)}50%{text-shadow:0 0 58px rgba(0,213,255,1),0 0 92px rgba(155,92,255,.55)}}
+#start .sub{position:relative;font-size:12px;color:var(--amber);letter-spacing:5px;margin-bottom:20px}
+#start p{position:relative;font-size:13px;color:var(--dim);line-height:2;max-width:520px;margin-bottom:24px}
+.diffs{position:relative;display:flex;gap:9px;margin-bottom:24px;flex-wrap:wrap;justify-content:center}
+.diff{padding:11px 17px;border-radius:12px;min-width:104px;background:rgba(255,255,255,.04);border:1.5px solid rgba(255,255,255,.12);transition:.18s}
+.diff .dn{font-size:13px;font-weight:bold;display:block}
+.diff .dd{font-size:9.5px;color:var(--dim);margin-top:3px;display:block}
+.diff:hover{transform:translateY(-2px)}
+.diff.sel{border-color:var(--cyan);background:linear-gradient(150deg,rgba(0,213,255,.2),rgba(155,92,255,.08));box-shadow:0 0 22px rgba(0,213,255,.3)}
+.diff.sel .dd{color:var(--txt)}
+#go{position:relative;padding:16px 54px;font-size:17px;font-weight:bold;letter-spacing:4px;border-radius:14px;
+  background:linear-gradient(135deg,rgba(0,255,156,.32),rgba(0,213,255,.12));border:2px solid var(--green);color:var(--green);text-shadow:0 0 12px rgba(0,255,156,.55);transition:.2s}
+#go:hover{transform:scale(1.05);box-shadow:0 0 34px rgba(0,255,156,.5)}
+#go:active{transform:scale(.98)}
+#start .foot{position:relative;margin-top:18px;font-size:10px;color:var(--dim2);letter-spacing:1px}
 
+/* ===== اختيار الموقع ===== */
+#siteSelect{position:fixed;inset:0;z-index:2900;display:none;flex-direction:column;align-items:center;justify-content:center;padding:22px;overflow-y:auto;
+  background:radial-gradient(ellipse at 50% 30%,#0d1c33,#05070f 70%)}
+#siteSelect.on{display:flex}
+#siteSelect h2{font-size:clamp(22px,5vw,34px);color:var(--gold);margin-bottom:6px;letter-spacing:2px}
+#siteSelect .sub{font-size:12px;color:var(--dim);margin-bottom:22px}
+.sites{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:13px;max-width:1080px;width:100%;margin-bottom:20px}
+.site{padding:16px;border-radius:14px;background:linear-gradient(155deg,var(--surf2),var(--ink2));border:2px solid rgba(255,255,255,.1);cursor:pointer;transition:.25s;text-align:right;position:relative;overflow:hidden}
+.site:hover{transform:translateY(-4px);border-color:var(--line2);box-shadow:0 14px 40px rgba(0,213,255,.2)}
+.site.sel{border-color:var(--gold);box-shadow:0 0 30px rgba(255,210,74,.4)}
+.site .si{font-size:34px;margin-bottom:8px;display:block}
+.site .sn{font-size:15px;font-weight:bold;color:var(--txt);margin-bottom:5px}
+.site .sd{font-size:10.5px;color:var(--dim);line-height:1.6;margin-bottom:9px}
+.site .st{display:flex;gap:5px;flex-wrap:wrap}
+.site .stag{font-size:8.5px;padding:2px 7px;border-radius:12px;background:rgba(0,213,255,.12);border:1px solid rgba(0,213,255,.3);color:var(--cyan)}
+.site .stag.warn{background:rgba(255,176,32,.12);border-color:rgba(255,176,32,.4);color:var(--amber)}
+.site .stag.dang{background:rgba(255,46,85,.12);border-color:rgba(255,46,85,.4);color:#ff8ba3}
+.site .selmark{position:absolute;top:10px;left:10px;font-size:18px;opacity:0;transition:.2s}
+.site.sel .selmark{opacity:1}
+#confirmSite{padding:13px 42px;font-size:15px;font-weight:bold;letter-spacing:2px;border-radius:12px;
+  background:linear-gradient(135deg,rgba(255,210,74,.3),rgba(255,122,47,.15));border:2px solid var(--gold);color:var(--gold);transition:.2s;opacity:.4;pointer-events:none}
+#confirmSite.ready{opacity:1;pointer-events:auto}
+#confirmSite.ready:hover{transform:scale(1.05);box-shadow:0 0 30px rgba(255,210,74,.4)}
+
+/* ===== القافلة ===== */
+#caravanScreen{position:fixed;inset:0;z-index:2800;display:none;flex-direction:column;background:var(--ink)}
+#caravanScreen.on{display:flex}
+#caravanTop{padding:12px 16px;display:flex;align-items:center;gap:14px;background:linear-gradient(180deg,rgba(8,13,26,.95),rgba(8,13,26,.85));border-bottom:1px solid var(--line)}
+#caravanTop .ct{font-size:14px;font-weight:bold;color:var(--gold)}
+#caravanTop .cd{font-size:11px;color:var(--dim)}
+#caravanTop .spacer{flex:1}
+#caravanTop .cbtn{padding:8px 16px;border-radius:10px;font-size:12px;font-weight:bold;background:rgba(0,255,156,.15);border:1px solid var(--green);color:var(--green)}
+#caravanTop .cbtn:hover{background:rgba(0,255,156,.3)}
+#caravanMap{flex:1;position:relative;overflow:hidden}
+#caravanCanvas{position:absolute;inset:0;width:100%;height:100%}
+#caravanProgress{position:absolute;top:14px;left:50%;transform:translateX(-50%);padding:10px 20px;border-radius:12px;background:rgba(5,9,20,.92);border:1px solid var(--gold);text-align:center}
+#caravanProgress .cp{font-size:12px;color:var(--gold);margin-bottom:6px}
+#caravanProgress .bar{width:200px;height:6px;border-radius:4px;background:rgba(255,255,255,.1);overflow:hidden}
+#caravanProgress .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--gold),var(--green));transition:width .3s}
+#caravanInfo{position:absolute;bottom:14px;right:14px;padding:12px 16px;border-radius:12px;background:rgba(5,9,20,.92);border:1px solid var(--line);max-width:280px}
+#caravanInfo .ci{font-size:13px;font-weight:bold;color:var(--cyan);margin-bottom:4px}
+#caravanInfo .cd{font-size:10.5px;color:var(--dim);line-height:1.6}
+
+/* ===== اللعبة ===== */
+#game{position:fixed;inset:0;display:none;flex-direction:column;z-index:10}
+#game.on{display:flex}
 #topbar{display:flex;gap:6px;padding:9px 10px;align-items:center;flex-wrap:wrap;z-index:6;
   background:linear-gradient(180deg,rgba(8,13,26,.95),rgba(8,13,26,.82));border-bottom:1px solid var(--line);backdrop-filter:blur(10px)}
-.res{display:flex;align-items:center;gap:6px;padding:6px 10px;border-radius:10px;min-width:92px;transition:.18s;
+.res{display:flex;align-items:center;gap:6px;padding:6px 10px;border-radius:10px;min-width:84px;transition:.18s;
   background:linear-gradient(150deg,rgba(0,213,255,.07),rgba(155,92,255,.05));border:1px solid var(--line)}
 .res .ic{font-size:15px}
-.res .nm{color:var(--dim);font-size:8.5px;letter-spacing:1.1px}
+.res .nm{color:var(--dim);font-size:8.5px;letter-spacing:1px}
 .res .vl{font-size:13px;font-weight:bold}
 .res.wood{border-color:rgba(196,132,74,.45)}
 .res.iron{border-color:rgba(142,163,192,.45)}
@@ -52,8 +119,9 @@ button{font-family:inherit;cursor:pointer;border:none;color:inherit;background:n
 .res.gold{border-color:rgba(255,210,74,.5)}
 .res.workers{border-color:rgba(0,213,255,.5)}
 .res.sold{border-color:rgba(0,255,156,.5)}
-.res.tower{border-color:rgba(0,213,255,.6);background:linear-gradient(150deg,rgba(0,213,255,.14),rgba(61,123,255,.06))}
+.res.tower{border-color:rgba(0,213,255,.6)}
 .res.wall{border-color:rgba(142,163,192,.55)}
+.res.morale{border-color:rgba(255,176,32,.55)}
 .res.click{cursor:pointer}
 .res.click:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,213,255,.22)}
 .res.full .vl{color:var(--amber)}
@@ -91,22 +159,33 @@ button{font-family:inherit;cursor:pointer;border:none;color:inherit;background:n
 .wprog i.battle{background:linear-gradient(90deg,var(--blood),var(--red),var(--ember))}
 .wprog i.deter{background:linear-gradient(90deg,var(--green),var(--cyan))}
 
+#seasonStrip{padding:6px 13px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;font-size:11px;
+  background:linear-gradient(180deg,rgba(15,10,30,.7),rgba(10,15,28,.5));border-bottom:1px solid rgba(155,92,255,.2)}
+#seasonStrip .ss{display:flex;gap:6px;align-items:center;color:var(--dim)}
+#seasonStrip .ss b{color:#c9a6ff}
+#seasonStrip .seff{font-size:10px;color:var(--amber)}
+#seasonStrip .wthr{font-size:10px;color:var(--cyan)}
+#seasonStrip .moral{font-size:10px;color:var(--gold)}
+
 #stage{flex:1;position:relative;overflow:hidden;min-height:0}
 #world{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;cursor:grab}
 #world.drag{cursor:grabbing}
 #world.place{cursor:crosshair}
 #flash{position:absolute;inset:0;pointer-events:none;z-index:3;opacity:0;background:radial-gradient(ellipse at center,transparent 38%,rgba(255,46,85,.6))}
+#weatherFx{position:absolute;inset:0;pointer-events:none;z-index:2;opacity:0;transition:opacity 1s}
 #hint{position:absolute;bottom:9px;right:11px;font-size:10.5px;color:var(--dim);pointer-events:none;z-index:4;max-width:58%;
   background:rgba(5,9,20,.82);border:1px solid var(--line);border-radius:9px;padding:6px 10px;animation:hf 15s forwards}
 @keyframes hf{0%,84%{opacity:1}100%{opacity:0}}
 #placeTip{position:absolute;top:10px;left:50%;transform:translateX(-50%);z-index:6;display:none;padding:7px 15px;border-radius:20px;
   font-size:12px;font-weight:bold;background:rgba(5,9,20,.94);border:1px solid var(--gold);color:var(--gold)}
 #placeTip.on{display:block}
-#banner{position:absolute;top:36%;left:50%;transform:translate(-50%,-50%);z-index:5;pointer-events:none;opacity:0;text-align:center;
+#banner{position:absolute;top:34%;left:50%;transform:translate(-50%,-50%);z-index:5;pointer-events:none;opacity:0;text-align:center;
   padding:14px 26px;border-radius:16px;background:rgba(5,9,20,.9);border:2px solid var(--red);box-shadow:0 0 40px rgba(255,46,85,.4)}
 #banner.calm{border-color:var(--green);box-shadow:0 0 40px rgba(0,255,156,.35)}
+#banner.king{border-color:var(--violet);box-shadow:0 0 50px rgba(155,92,255,.5)}
 #banner .b1{font-size:20px;font-weight:bold;color:#ff8ba3;letter-spacing:2px}
 #banner.calm .b1{color:var(--green)}
+#banner.king .b1{color:#c9a6ff}
 #banner .b2{font-size:12px;color:var(--gold);margin-top:5px}
 #banner .b3{font-size:11px;color:var(--dim);margin-top:3px}
 
@@ -123,17 +202,18 @@ button{font-family:inherit;cursor:pointer;border:none;color:inherit;background:n
 #battleDock{display:none;padding:8px 10px 9px;background:linear-gradient(180deg,rgba(34,10,24,.97),rgba(8,12,24,.98));
   border-top:1px solid rgba(255,46,85,.45);box-shadow:0 -12px 34px rgba(179,18,55,.22)}
 #battleDock.on{display:block;animation:dock .25s ease-out}
-#battleDock.calm{background:linear-gradient(180deg,rgba(8,44,34,.97),rgba(8,12,24,.98));border-top-color:rgba(0,255,156,.45);box-shadow:0 -12px 34px rgba(0,255,156,.16)}
+#battleDock.calm{background:linear-gradient(180deg,rgba(8,44,34,.97),rgba(8,12,24,.98));border-top-color:rgba(0,255,156,.45)}
 @keyframes dock{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 #objLine{font-size:10.5px;color:#ff8ba3;margin-bottom:5px}
 #battleDock.calm #objLine{color:var(--green)}
 .bbtop{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:6px;font-size:11px}
-.gauge{flex:1;min-width:118px}
+.gauge{flex:1;min-width:110px}
 .gauge .gl{display:flex;justify-content:space-between;color:var(--dim);font-size:9.5px;margin-bottom:3px}
 .gauge .gt{height:7px;border-radius:5px;background:rgba(255,255,255,.07);overflow:hidden;border:1px solid rgba(255,255,255,.06)}
 .gauge .gf{height:100%;width:100%;border-radius:5px;transition:width .2s}
 #integF{background:linear-gradient(90deg,var(--green),var(--cyan))}
 #gateF{background:linear-gradient(90deg,var(--steel),var(--blue))}
+#moraleF{background:linear-gradient(90deg,var(--amber),var(--gold))}
 .cnt{display:flex;gap:8px;font-size:11.5px;font-weight:bold}
 .cnt span{padding:3px 9px;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08)}
 #batchPips{display:flex;gap:5px;align-items:center;font-size:10px;color:var(--dim);margin-bottom:5px}
@@ -151,6 +231,7 @@ button{font-family:inherit;cursor:pointer;border:none;color:inherit;background:n
 .cbtn{padding:8px 3px;border-radius:10px;font-size:10px;font-weight:bold;background:rgba(0,213,255,.09);border:1px solid var(--line);transition:.15s}
 .cbtn:hover{background:rgba(0,213,255,.22);transform:translateY(-1px)}
 .cbtn.dang{background:rgba(255,46,85,.12);border-color:rgba(255,46,85,.45);color:#ff8ba3}
+.cbtn.gold{background:rgba(255,210,74,.12);border-color:rgba(255,210,74,.4);color:var(--gold)}
 
 #actions{display:flex;gap:6px;padding:9px 10px;background:rgba(6,10,20,.96);border-top:1px solid var(--line)}
 .act{flex:1;padding:11px 3px;border-radius:10px;font-size:11px;font-weight:bold;transition:.15s;background:rgba(0,213,255,.08);border:1.5px solid var(--line)}
@@ -159,26 +240,28 @@ button{font-family:inherit;cursor:pointer;border:none;color:inherit;background:n
 .act.pri{background:linear-gradient(135deg,rgba(0,255,156,.22),rgba(0,255,156,.05));border-color:var(--green);color:var(--green)}
 .act.pri.hot{background:linear-gradient(135deg,rgba(255,46,85,.28),rgba(255,46,85,.07));border-color:var(--red);color:#ff8ba3;animation:tp .9s infinite}
 
+/* ===== اللوحات ===== */
 .panel{display:none;position:fixed;inset:0;z-index:1000;padding:18px;overflow-y:auto;background:rgba(3,5,12,.93);backdrop-filter:blur(11px);flex-direction:column;align-items:center}
 .panel.on{display:flex;animation:pin .2s ease-out}
 @keyframes pin{from{opacity:0}to{opacity:1}}
 .box{width:100%;max-width:560px;margin:auto 0;border-radius:17px;overflow:hidden;box-shadow:var(--sh);
   background:linear-gradient(155deg,var(--surf2),var(--ink2));border:2px solid var(--cyan);animation:bx .28s cubic-bezier(.2,.9,.3,1.2)}
 @keyframes bx{from{transform:translateY(22px) scale(.97);opacity:0}to{transform:none;opacity:1}}
-.box.gold{border-color:var(--gold)}.box.red{border-color:var(--red)}.box.green{border-color:var(--green)}
+.box.gold{border-color:var(--gold)}.box.red{border-color:var(--red)}.box.green{border-color:var(--green)}.box.violet{border-color:var(--violet)}
 .bh{padding:16px 18px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,rgba(0,213,255,.13),transparent)}
 .box.red .bh{background:linear-gradient(180deg,rgba(255,46,85,.16),transparent)}
 .box.green .bh{background:linear-gradient(180deg,rgba(0,255,156,.13),transparent)}
 .box.gold .bh{background:linear-gradient(180deg,rgba(255,210,74,.13),transparent)}
+.box.violet .bh{background:linear-gradient(180deg,rgba(155,92,255,.16),transparent)}
 .bh h2{flex:1;text-align:center;font-size:17px;letter-spacing:1px;color:var(--cyan)}
-.box.red .bh h2{color:#ff8ba3}.box.green .bh h2{color:var(--green)}.box.gold .bh h2{color:var(--gold)}
+.box.red .bh h2{color:#ff8ba3}.box.green .bh h2{color:var(--green)}.box.gold .bh h2{color:var(--gold)}.box.violet .bh h2{color:#c9a6ff}
 .x{width:31px;height:31px;border-radius:50%;background:rgba(255,255,255,.08);color:var(--dim);font-size:15px;display:flex;align-items:center;justify-content:center;transition:.15s}
 .x:hover{background:rgba(255,46,85,.28);color:var(--red)}
 .bd{padding:17px;max-height:70vh;overflow-y:auto}
 .row{display:flex;justify-content:space-between;gap:10px;padding:8px 0;font-size:12.5px;border-bottom:1px solid rgba(255,255,255,.05)}
 .row:last-child{border-bottom:none}
 .row .l{color:var(--dim)}.row .v{font-weight:bold;text-align:left}
-.v.g{color:var(--green)}.v.a{color:var(--amber)}.v.r{color:var(--red)}.v.c{color:var(--cyan)}
+.v.g{color:var(--green)}.v.a{color:var(--amber)}.v.r{color:var(--red)}.v.c{color:var(--cyan)}.v.vi{color:#c9a6ff}
 .note{font-size:11.5px;color:var(--dim);line-height:1.8}
 .sec{color:var(--cyan);font-size:13px;margin:15px 0 7px}
 .btn{width:100%;padding:12px;margin-top:12px;border-radius:11px;font-size:13.5px;font-weight:bold;transition:.15s;
@@ -189,6 +272,7 @@ button{font-family:inherit;cursor:pointer;border:none;color:inherit;background:n
 .btn.gold{background:linear-gradient(135deg,rgba(255,210,74,.24),rgba(255,210,74,.06));border-color:var(--gold);color:var(--gold)}
 .btn.red{background:linear-gradient(135deg,rgba(255,46,85,.24),rgba(255,46,85,.06));border-color:var(--red);color:#ff8ba3}
 .btn.ghost{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.14);color:var(--dim)}
+.btn.violet{background:linear-gradient(135deg,rgba(155,92,255,.24),rgba(155,92,255,.06));border-color:var(--violet);color:#c9a6ff}
 .wc{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:9px;padding:9px 12px;border-radius:11px;background:rgba(0,213,255,.05);border:1px solid var(--line)}
 .wc .i{flex:1;font-size:12.5px}
 .wc .i small{display:block;color:var(--dim);font-size:9.5px;margin-top:2px}
@@ -208,7 +292,7 @@ button{font-family:inherit;cursor:pointer;border:none;color:inherit;background:n
 .tb{padding:6px 10px;border-radius:8px;font-size:10.5px;font-weight:bold;background:rgba(255,210,74,.14);border:1px solid rgba(255,210,74,.42);color:var(--gold)}
 .tb:disabled{opacity:.35;cursor:not-allowed}
 .le{padding:7px 11px;border-radius:9px;margin-bottom:5px;font-size:11.5px;line-height:1.55;background:rgba(255,255,255,.03);border-right:3px solid var(--dim2)}
-.le.info{border-color:var(--cyan)}.le.success{border-color:var(--green)}.le.warning{border-color:var(--amber)}.le.danger{border-color:var(--red)}
+.le.info{border-color:var(--cyan)}.le.success{border-color:var(--green)}.le.warning{border-color:var(--amber)}.le.danger{border-color:var(--red)}.le.epic{border-color:var(--violet);background:rgba(155,92,255,.06)}
 .le .t{color:var(--dim2);font-size:9.5px;margin-right:7px}
 .wp{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:13px}
 .wpb{padding:11px;border-radius:11px;text-align:center;background:rgba(255,255,255,.035);border:1px solid var(--line)}
@@ -230,6 +314,41 @@ button{font-family:inherit;cursor:pointer;border:none;color:inherit;background:n
 .turcell{padding:9px 4px;border-radius:10px;text-align:center;font-size:10px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08)}
 .turcell.on{background:rgba(0,213,255,.14);border-color:rgba(0,213,255,.5);color:var(--cyan)}
 .turcell .ti{font-size:17px;display:block;margin-bottom:3px}
+.cardgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:8px}
+.card2{padding:11px;border-radius:12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.09);text-align:center;transition:.18s}
+.card2 .c2i{font-size:22px;display:block;margin-bottom:5px}
+.card2 .c2n{font-size:12px;font-weight:bold;color:var(--txt)}
+.card2 .c2d{font-size:9.5px;color:var(--dim);margin-top:3px;line-height:1.5}
+.card2.on{border-color:var(--green);background:rgba(0,255,156,.08)}
+.card2.locked{opacity:.45}
+.nobrow{display:flex;gap:10px;align-items:center;padding:10px 12px;border-radius:11px;margin-top:7px;background:rgba(155,92,255,.06);border:1px solid rgba(155,92,255,.25)}
+.nobrow.ally{border-color:var(--green);background:rgba(0,255,156,.08)}
+.nobrow.enemy{border-color:var(--red);background:rgba(255,46,85,.08)}
+.nobrow .ni{font-size:24px}
+.nobrow .nn{flex:1;min-width:0}
+.nobrow .nn b{font-size:12px;display:block;color:var(--txt)}
+.nobrow .nn span{font-size:10px;color:var(--dim)}
+.nobrow .nbtn{padding:6px 10px;border-radius:8px;font-size:10px;font-weight:bold;background:rgba(155,92,255,.16);border:1px solid rgba(155,92,255,.4);color:#c9a6ff}
+.kingrow{display:flex;gap:10px;align-items:center;padding:10px 12px;border-radius:11px;margin-top:7px;background:rgba(255,46,85,.06);border:1px solid rgba(255,46,85,.25)}
+.kingrow.dead{opacity:.5;border-color:var(--green);background:rgba(0,255,156,.06)}
+.kingrow .ki{font-size:26px}
+.kingrow .kn{flex:1;min-width:0}
+.kingrow .kn b{font-size:12px;display:block;color:#ff8ba3}
+.kingrow.dead .kn b{color:var(--green)}
+.kingrow .kn span{font-size:10px;color:var(--dim)}
+.civrow{display:flex;gap:10px;align-items:center;padding:10px 12px;border-radius:11px;margin-top:7px;background:rgba(0,213,255,.05);border:1px solid rgba(0,213,255,.25)}
+.civrow.cur{border-color:var(--gold);background:rgba(255,210,74,.1)}
+.civrow .ci2{font-size:26px}
+.civrow .cn2{flex:1;min-width:0}
+.civrow .cn2 b{font-size:12px;display:block;color:var(--cyan)}
+.civrow.cur .cn2 b{color:var(--gold)}
+.civrow .cn2 span{font-size:10px;color:var(--dim)}
+.formrow{display:flex;gap:8px;align-items:center;padding:9px 11px;border-radius:11px;margin-top:6px;background:rgba(61,123,255,.06);border:1px solid rgba(61,123,255,.3)}
+.formrow.on{border-color:var(--cyan);background:rgba(0,213,255,.12)}
+.formrow .fi{font-size:20px}
+.formrow .fn{flex:1}
+.formrow .fn b{font-size:11px;display:block}
+.formrow .fn span{font-size:9.5px;color:var(--dim)}
 
 #toasts{position:fixed;top:78px;left:50%;transform:translateX(-50%);z-index:2000;display:flex;flex-direction:column;gap:7px;align-items:center;pointer-events:none;width:calc(100% - 36px);max-width:390px}
 .toast{padding:10px 20px;border-radius:11px;font-size:12.5px;font-weight:bold;text-align:center;min-width:170px;
@@ -237,31 +356,10 @@ button{font-family:inherit;cursor:pointer;border:none;color:inherit;background:n
 .toast.success{border-color:var(--green);color:var(--green)}
 .toast.danger{border-color:var(--red);color:#ff8ba3}
 .toast.warning{border-color:var(--amber);color:var(--amber)}
+.toast.gold{border-color:var(--gold);color:var(--gold)}
+.toast.violet{border-color:var(--violet);color:#c9a6ff}
 @keyframes tin{from{opacity:0;transform:translateY(-14px)}to{opacity:1;transform:none}}
 @keyframes tout{to{opacity:0;transform:translateY(-14px)}}
-
-#start{position:fixed;inset:0;z-index:3000;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:22px;text-align:center;overflow-y:auto;
-  background:radial-gradient(ellipse at 50% 30%,#0d1c33,#05070f 70%)}
-#start::before{content:'';position:absolute;inset:0;pointer-events:none;background:
-  radial-gradient(circle at 20% 80%,rgba(255,122,47,.14),transparent 45%),
-  radial-gradient(circle at 80% 20%,rgba(0,213,255,.14),transparent 45%);animation:drift 14s ease-in-out infinite alternate}
-@keyframes drift{to{transform:translate3d(0,-18px,0) scale(1.06)}}
-#start h1{position:relative;font-size:clamp(40px,11vw,68px);letter-spacing:11px;color:var(--cyan);margin-bottom:10px;animation:tg 2.6s infinite}
-@keyframes tg{0%,100%{text-shadow:0 0 30px rgba(0,213,255,.7)}50%{text-shadow:0 0 58px rgba(0,213,255,1),0 0 92px rgba(155,92,255,.55)}}
-#start .sub{position:relative;font-size:12px;color:var(--amber);letter-spacing:6px;margin-bottom:26px}
-#start p{position:relative;font-size:13px;color:var(--dim);letter-spacing:1.2px;line-height:2;max-width:470px;margin-bottom:34px}
-.diffs{position:relative;display:flex;gap:9px;margin-bottom:28px;flex-wrap:wrap;justify-content:center}
-.diff{padding:11px 17px;border-radius:12px;min-width:104px;background:rgba(255,255,255,.04);border:1.5px solid rgba(255,255,255,.12);transition:.18s}
-.diff .dn{font-size:13px;font-weight:bold;display:block}
-.diff .dd{font-size:9.5px;color:var(--dim);margin-top:3px;display:block}
-.diff:hover{transform:translateY(-2px)}
-.diff.sel{border-color:var(--cyan);background:linear-gradient(150deg,rgba(0,213,255,.2),rgba(155,92,255,.08));box-shadow:0 0 22px rgba(0,213,255,.3)}
-.diff.sel .dd{color:var(--txt)}
-#go{position:relative;padding:16px 54px;font-size:17px;font-weight:bold;letter-spacing:4px;border-radius:14px;
-  background:linear-gradient(135deg,rgba(0,255,156,.32),rgba(0,213,255,.12));border:2px solid var(--green);color:var(--green);text-shadow:0 0 12px rgba(0,255,156,.55);transition:.2s}
-#go:hover{transform:scale(1.05);box-shadow:0 0 34px rgba(0,255,156,.5)}
-#go:active{transform:scale(.98)}
-#start .foot{position:relative;margin-top:22px;font-size:10px;color:var(--dim2);letter-spacing:1px}
 
 @media (max-width:560px){
   #topbar{padding:7px;gap:5px}
@@ -273,6 +371,8 @@ button{font-family:inherit;cursor:pointer;border:none;color:inherit;background:n
   .cbtn{font-size:9px;padding:7px 2px}
   .bd{padding:14px}.cnt{font-size:10.5px}
   #hint{max-width:50%;font-size:9.5px}
+  .sites{grid-template-columns:1fr}
+  .cardgrid{grid-template-columns:1fr}
 }
 @media (max-height:720px){
   .bbtop{margin-bottom:4px}#objLine{font-size:9.5px}
@@ -286,21 +386,47 @@ button{font-family:inherit;cursor:pointer;border:none;color:inherit;background:n
 <div id="errbar"></div>
 
 <div id="start">
-  <h1>T-HAVEN</h1>
+  <h1>انتقام السلاطين</h1>
   <div class="sub">الحصار الليلي</div>
-  <p>مدينتك الأخيرة في عالم مظلم. ابنِ قاعدتك، أدر مواردك، وادفع عن منزلك موجات الليل.</p>
+  <p>مملكتك الأخيرة في عالم مظلم. قُد قافلتك، اختر موقع قلعتك، ابنِ أسوارك، كسب ودّ النبلاء، وادفع عن عرشك موجات الليل. سيرة ملكٍ يستعيد ما سُلِب منه.</p>
   <div class="diffs" id="diffs">
     <button class="diff" data-d="easy"><span class="dn">🌿 هادئ</span><span class="dd">أعداء أضعف · غنائم +15%</span></button>
     <button class="diff sel" data-d="normal"><span class="dn">⚔️ عادي</span><span class="dd">التدرّج المقصود</span></button>
     <button class="diff" data-d="hard"><span class="dn">💀 قاسٍ</span><span class="dd">تحدٍ حقيقي · غنائم +35%</span></button>
   </div>
-  <button id="go">ابدأ البناء</button>
+  <button id="go">ابدأ الرحلة</button>
   <div class="foot">اسحب الخريطة · قرصة للتكبير · اضغط المباني للتطوير</div>
+</div>
+
+<div id="siteSelect">
+  <h2>🗺️ اختر موقع قلعتك</h2>
+  <div class="sub">كل موقع يفتح مساراً مختلفاً من الأعداء والموارد والمواسم</div>
+  <div class="sites" id="sitesList"></div>
+  <button id="confirmSite">تأكيد الموقع</button>
+</div>
+
+<div id="caravanScreen">
+  <div id="caravanTop">
+    <span class="ct">🐪 قافلة اللاجئين</span>
+    <span class="cd" id="caravanDest">الوجهة: —</span>
+    <div class="spacer"></div>
+    <button class="cbtn" id="caravanSkip">تخطّي الرحلة</button>
+  </div>
+  <div id="caravanMap">
+    <canvas id="caravanCanvas"></canvas>
+    <div id="caravanProgress">
+      <div class="cp" id="caravanPct">المسافة: 0%</div>
+      <div class="bar"><i id="caravanBar" style="width:0%"></i></div>
+    </div>
+    <div id="caravanInfo">
+      <div class="ci" id="ciTitle">القافلة</div>
+      <div class="cd" id="ciDesc">في الطريق...</div>
+    </div>
+  </div>
 </div>
 
 <div id="game">
   <div id="topbar"></div>
-
   <div id="wavebar">
     <div class="wi">
       <div><span class="lb">الموجة</span> <b id="wNum">#1</b></div>
@@ -314,13 +440,20 @@ button{font-family:inherit;cursor:pointer;border:none;color:inherit;background:n
     <div class="timer" id="wTimer">02:00</div>
     <div class="wprog"><i id="wFill"></i></div>
   </div>
-
+  <div id="seasonStrip">
+    <span class="ss">🍂 الفصل: <b id="seasonName">الخريف</b></span>
+    <span class="ss">الموجة <b id="seasonWave">1</b>/<b id="seasonEnd">4</b></span>
+    <span class="seff" id="seasonEff"></span>
+    <span class="wthr" id="weatherEff"></span>
+    <span class="moral" id="moraleEff"></span>
+  </div>
   <div id="stage">
     <canvas id="world"></canvas>
+    <div id="weatherFx"></div>
     <div id="flash"></div>
     <div id="banner"><div class="b1"></div><div class="b2"></div><div class="b3"></div></div>
     <div id="placeTip">اضغط على الأرض لتحديد الموقع</div>
-    <div id="hint">🖐️ اسحب للتحريك · الأبراج 🗼 في زوايا السور · اضغط جندياً ثم الأرض لنقله · اضغط عدواً 🎯 لتركيز النيران</div>
+    <div id="hint">🖐️ اسحب للتحريك · اضغط جندياً ثم الأرض لنقله · اضغط عدواً 🎯 لتركيز النيران</div>
     <div id="selBar">
       <span class="sn" id="selName">جندي</span>
       <span class="sh" id="selHp"></span>
@@ -331,34 +464,28 @@ button{font-family:inherit;cursor:pointer;border:none;color:inherit;background:n
       <button class="mini gray" data-act="desel">✕</button>
     </div>
   </div>
-
   <div id="battleDock">
     <div id="objLine"></div>
     <div class="bbtop">
-      <div class="gauge">
-        <div class="gl"><span>❤️ سلامة القاعدة</span><span id="integT">100%</span></div>
-        <div class="gt"><div class="gf" id="integF"></div></div>
-      </div>
-      <div class="gauge">
-        <div class="gl"><span>🧱 متانة السور</span><span id="gateT">—</span></div>
-        <div class="gt"><div class="gf" id="gateF"></div></div>
-      </div>
+      <div class="gauge"><div class="gl"><span>❤️ سلامة القاعدة</span><span id="integT">100%</span></div><div class="gt"><div class="gf" id="integF"></div></div></div>
+      <div class="gauge"><div class="gl"><span>🧱 متانة السور</span><span id="gateT">—</span></div><div class="gt"><div class="gf" id="gateF"></div></div></div>
+      <div class="gauge"><div class="gl"><span>🔥 المعنويات</span><span id="moraleT">100</span></div><div class="gt"><div class="gf" id="moraleF"></div></div></div>
       <div class="cnt"><span id="killT">☠️ 0</span><span id="aliveT">👹 0</span></div>
     </div>
     <div id="batchPips"></div>
     <div id="rosterStrip"></div>
     <div class="cmds">
       <button class="cbtn" data-act="place-all">📍 تجميع الكل</button>
-      <button class="cbtn" data-act="mode-all" data-m="engage">⚔️ اشتباك عام</button>
-      <button class="cbtn" data-act="mode-all" data-m="auto">🚪 أقرب بوابة بها عدو</button>
+      <button class="cbtn" data-act="formation">🛡️ تشكيل</button>
+      <button class="cbtn" data-act="mode-all" data-m="auto">🚪 أقرب بوابة</button>
       <button class="cbtn dang" data-act="mode-all" data-m="retreat">🏥 انسحاب عام</button>
     </div>
   </div>
-
   <div id="actions">
     <button class="act" data-act="panel" data-p="pLog">📜 السجل</button>
     <button class="act" data-act="panel" data-p="pSoldiers">🛡️ الجنود</button>
     <button class="act" data-act="workers">👷 العمال</button>
+    <button class="act" data-act="panel" data-p="pCity">🏘️ المدينة</button>
     <button class="act" data-act="panel" data-p="pHelp">❓ دليل</button>
     <button class="act pri" id="btnWave" data-act="panel" data-p="pWave">⚔️ الهجمة</button>
   </div>
@@ -369,9 +496,19 @@ button{font-family:inherit;cursor:pointer;border:none;color:inherit;background:n
   <div class="bd" id="bBody"></div>
 </div></div>
 
+<div class="panel" id="pCity"><div class="box violet">
+  <div class="bh"><h2>🏘️ المدينة والنبلاء</h2><button class="x" data-act="close" data-p="pCity">✕</button></div>
+  <div class="bd" id="cityBody"></div>
+</div></div>
+
 <div class="panel" id="pSoldiers"><div class="box green">
   <div class="bh"><h2>🛡️ قيادة الجنود</h2><button class="x" data-act="close" data-p="pSoldiers">✕</button></div>
   <div class="bd" id="soldBody"></div>
+</div></div>
+
+<div class="panel" id="pChronicle"><div class="box gold">
+  <div class="bh"><h2>📜 سجل الملاحم</h2><button class="x" data-act="close" data-p="pChronicle">✕</button></div>
+  <div class="bd" id="chronBody"></div>
 </div></div>
 
 <div class="panel" id="pLog"><div class="box">
@@ -402,6 +539,7 @@ button{font-family:inherit;cursor:pointer;border:none;color:inherit;background:n
 <div id="toasts"></div>
 
 <script>
+/* سكريبت الإقلاع: يعالج اختيار الصعوبة فقط */
 (function(){
   function show(m){
     var b=document.getElementById('errbar');
@@ -415,7 +553,6 @@ button{font-family:inherit;cursor:pointer;border:none;color:inherit;background:n
     show((e.message||'error')+'\n'+where);
   });
   window.__diff='normal';
-  window.__wantStart=false;
   document.addEventListener('click',function(ev){
     var t=ev.target;
     if(!t||!t.closest) return;
@@ -426,29 +563,24 @@ button{font-family:inherit;cursor:pointer;border:none;color:inherit;background:n
       for(var i=0;i<k.length;i++){
         if(k[i]===d) k[i].classList.add('sel'); else k[i].classList.remove('sel');
       }
-      return;
-    }
-    if(t.closest('#go')){
-      window.__wantStart=true;
-      document.getElementById('start').style.display='none';
-      document.getElementById('game').style.display='flex';
-      if(typeof window.__boot==='function'){
-        try{ window.__boot(); }catch(err){ show('boot: '+err.message+'\n'+(err.stack||'')); }
-      }else{
-        show('محرك اللعبة لم يُحمَّل — أعد تحميل الصفحة');
-      }
     }
   },false);
 })();
 </script>
 
 <script>
+/* ============================================================
+   انتقام السلاطين — كود واحد مقسم إلى ٤ أجزاء
+   الجزء ١/٤: الأدوات، الثوابت لكل الميزات، الحالة، الصوت، الحفظ
+   ============================================================ */
 (function(){
 'use strict';
 
+/* ---------- أدوات عامة ---------- */
 function el(id){ return document.getElementById(id); }
 function report(where,err){
-  if(window.__report) window.__report(where+': '+(err&&err.message?err.message:err));
+  var b=el('errbar');
+  if(b){ b.style.display='block'; b.textContent='⚠ '+where+': '+(err&&err.message?err.message:err); }
 }
 function guard(where,fn){
   return function(){
@@ -458,7 +590,7 @@ function guard(where,fn){
 }
 function clamp(v,a,b){ return v<a?a:(v>b?b:v); }
 function rnd(a,b){ return a+Math.random()*(b-a); }
-function dist(ax,ay,bx,by){ var dx=ax-bx, dy=ay-by; return Math.sqrt(dx*dx+dy*dy); }
+function dist(ax,ay,bx,by){ var dx=ax-bx,dy=ay-by; return Math.sqrt(dx*dx+dy*dy); }
 function fmtN(n){
   if(n>=1e6) return (n/1e6).toFixed(1)+'M';
   if(n>=1e3) return (n/1e3).toFixed(1)+'K';
@@ -471,7 +603,7 @@ function fmtDur(s){
 }
 function fmtT(ms){
   var t=Math.max(0,Math.ceil(ms/1000));
-  var m=Math.floor(t/60), s=t%60;
+  var m=Math.floor(t/60),s=t%60;
   return (m<10?'0':'')+m+':'+(s<10?'0':'')+s;
 }
 function num(v,d){ return (typeof v==='number'&&isFinite(v))?v:d; }
@@ -484,6 +616,32 @@ function seeded(seed){
   };
 }
 
+/* ---------- ميزة ١: المواقع الخمسة ---------- */
+var SITES=[
+  {id:'mountain',name:'جبل الصمود',icon:'🏔️',
+   desc:'قلعة محصنة في قلب الجبال. دفاع طبيعي قوي، لكن الخشب شحيح والحديد وفير.',
+   tags:[{t:'دفاع +30%',c:''},{t:'حديد +40%',c:''},{t:'خشب -20%',c:'warn'},{t:'متسلقون',c:'dang'}],
+   mods:{defMult:1.3,woodMult:0.8,ironMult:1.4,foodMult:0.9,goldMult:1.0},terrain:'rock',color:'#8ea3c0',enemyBias:'sapper'},
+  {id:'forest',name:'غابة الظلال',icon:'🌲',
+   desc:'خشب وفير وأراضٍ خصبة، لكن الأعداء يتسللون بين الأشجار.',
+   tags:[{t:'خشب +50%',c:''},{t:'غذاء +30%',c:''},{t:'حديد -15%',c:'warn'},{t:'متسللون',c:'dang'}],
+   mods:{defMult:0.95,woodMult:1.5,ironMult:0.85,foodMult:1.3,goldMult:1.0},terrain:'forest',color:'#2d5a3a',enemyBias:'runner'},
+  {id:'desert',name:'صحراء الرمال',icon:'🏜️',
+   desc:'ذهب كثير تحت الرمال، لكن الماء نادر والعواصف الرملية تعمي الأبراج.',
+   tags:[{t:'ذهب +60%',c:''},{t:'غذاء -40%',c:'dang'},{t:'عواصف رملية',c:'warn'},{t:'فرسان',c:'dang'}],
+   mods:{defMult:1.0,woodMult:0.7,ironMult:1.0,foodMult:0.6,goldMult:1.6},terrain:'sand',color:'#c4a24a',enemyBias:'raider'},
+  {id:'river',name:'ضفاف النهر',icon:'🏞️',
+   desc:'أراضٍ خصبة وممرات مائية، لكن الأعداء يأتون بالقوارب من النهر.',
+   tags:[{t:'غذاء +50%',c:''},{t:'خشب +20%',c:''},{t:'هجمات نهرية',c:'warn'}],
+   mods:{defMult:0.9,woodMult:1.2,ironMult:0.9,foodMult:1.5,goldMult:1.0},terrain:'water',color:'#3d7bff',enemyBias:'runner'},
+  {id:'plain',name:'السهول المفتوحة',icon:'🌾',
+   desc:'توازن مثالي بين الموارد، لكن لا دفاع طبيعي. ساحتك، وقواعدك.',
+   tags:[{t:'توازن الموارد',c:''},{t:'لا دفاع طبيعي',c:'warn'}],
+   mods:{defMult:1.0,woodMult:1.0,ironMult:1.0,foodMult:1.0,goldMult:1.0},terrain:'grass',color:'#7a9a4a',enemyBias:'brute'}
+];
+var selectedSite=null;
+
+/* ---------- ثوابت العالم ---------- */
 var WORLD=1200;
 var WR={x1:250,y1:250,x2:950,y2:950};
 var GATES={
@@ -493,10 +651,10 @@ var GATES={
 };
 var GK=['N','E','S'];
 var SLOTS={
-  lumbermill:{x:390,y:390}, mine:{x:810,y:390},
-  farm:{x:390,y:810}, barracks:{x:810,y:810},
-  storage:{x:600,y:600}, market:{x:600,y:395},
-  hospital:{x:395,y:600}, workshop:{x:805,y:600}
+  lumbermill:{x:390,y:390},mine:{x:810,y:390},
+  farm:{x:390,y:810},barracks:{x:810,y:810},
+  storage:{x:600,y:600},market:{x:600,y:395},
+  hospital:{x:395,y:600},workshop:{x:805,y:600}
 };
 var TUR=[{x:950,y:250},{x:250,y:250},{x:950,y:950},{x:250,y:950}];
 var TURNAME=['الشمالي الشرقي','الشمالي الغربي','الجنوبي الشرقي','الجنوبي الغربي'];
@@ -504,19 +662,21 @@ var TRANGE=430;
 var RM={wood:{n:'خشب',i:'🌲'},iron:{n:'حديد',i:'⛏️'},food:{n:'غذاء',i:'🌾'},gold:{n:'ذهب',i:'💰'}};
 var RC={wood:'#c4844a',iron:'#8ea3c0',food:'#00ff9c',gold:'#ffd24a'};
 
+/* ---------- المباني (مع مستويات نهائية — ميزة ١٦) ---------- */
 var BUILD={
   lumbermill:{name:'منشرة',icon:'🌲',desc:'تنتج الخشب بمرور الوقت',max:20,cost:{wood:30},mult:1.28,prod:'wood',rate:0.5,mw:3,unlock:0},
   mine:{name:'منجم',icon:'⛏️',desc:'يستخرج الحديد من باطن الأرض',max:20,cost:{wood:60},mult:1.25,prod:'iron',rate:0.3,mw:3,unlock:0},
   farm:{name:'مزرعة',icon:'🌾',desc:'تنتج الغذاء للعمال والجنود',max:20,cost:{wood:40},mult:1.25,prod:'food',rate:0.6,mw:3,unlock:0},
   storage:{name:'مخزن',icon:'📦',desc:'يرفع سعة الموارد المخزّنة',max:10,cost:{wood:80,iron:20},mult:1.45,eff:'cap',mw:0,unlock:0},
-  wall:{name:'سور',icon:'🧱',desc:'متانة دائمة تُقسَم على البوابات وقت المعركة — لا تتجدد تلقائياً',max:15,cost:{wood:60,iron:20},mult:1.3,eff:'def',mw:0,unlock:0},
-  tower:{name:'برج',icon:'🗼',desc:'أبراج رماية في زوايا السور الأربع — المستوى الأول يشغّل برجين',max:15,cost:{wood:100,iron:40},mult:1.3,eff:'def',mw:0,unlock:3},
-  barracks:{name:'ثكنة',icon:'⚔️',desc:'سعة الجنود = المستوى × 2 — تتحكم بكل جندي على حدة',max:10,cost:{wood:150,iron:80,food:40},mult:1.3,eff:'sold',mw:0,unlock:4},
+  wall:{name:'سور',icon:'🧱',desc:'متانة دائمة تُقسَم على البوابات وقت المعركة',max:15,cost:{wood:60,iron:20},mult:1.3,eff:'def',mw:0,unlock:0},
+  tower:{name:'برج',icon:'🗼',desc:'أبراج رماية في زوايا السور الأربع',max:15,cost:{wood:100,iron:40},mult:1.3,eff:'def',mw:0,unlock:3},
+  barracks:{name:'ثكنة',icon:'⚔️',desc:'سعة الجنود = المستوى × 2',max:10,cost:{wood:150,iron:80,food:40},mult:1.3,eff:'sold',mw:0,unlock:4},
   market:{name:'سوق',icon:'🏪',desc:'بيع وشراء الموارد مقابل الذهب',max:5,cost:{wood:200,iron:100,gold:30},mult:1.6,eff:'market',mw:0,unlock:6},
   hospital:{name:'مستشفى',icon:'🏥',desc:'يعيد الجرحى إلى الخدمة تلقائياً',max:8,cost:{wood:180,iron:120,gold:20},mult:1.5,eff:'heal',mw:1,unlock:5},
   workshop:{name:'ورشة',icon:'🔧',desc:'تحسّن إنتاج كل المباني',max:10,cost:{wood:250,iron:150,gold:50},mult:1.35,eff:'boost',mw:1,unlock:7}
 };
 
+/* ---------- الأعداء ---------- */
 var ET={
   raider:{n:'قاطع طريق',hp:52,spd:50,dmg:10,atk:1.3,armor:0,bounty:4,r:7,c:'#ff2e55',c2:'#7d0c22',raid:2.0},
   runner:{n:'عدّاء',hp:34,spd:80,dmg:6,atk:1.0,armor:0,bounty:3,r:6,c:'#ff5ec7',c2:'#7a1157',raid:1.5},
@@ -525,14 +685,12 @@ var ET={
   engine:{n:'منجنيق',hp:150,spd:0,dmg:40,atk:3.6,armor:3,bounty:16,r:13,c:'#ffb020',c2:'#6d4a06',raid:0,engine:true},
   boss:{n:'الطاغية',hp:1600,spd:22,dmg:70,atk:2.0,armor:10,bounty:160,r:21,c:'#9b5cff',c2:'#2d0b52',raid:9,boss:true}
 };
-
 var PAT={
   normal:{n:'عادية',cls:'',dur:0,batches:2,gap:17,mix:{raider:0.70,brute:0.18,sapper:0.12},mult:1.0,win:'أبِد كل المهاجمين'},
   rush:{n:'خاطفة',cls:'rush',dur:0,batches:1,gap:0,mix:{runner:0.78,raider:0.22},mult:1.45,win:'أبِد كل المهاجمين'},
   siege:{n:'حصار',cls:'siege',dur:72,batches:3,gap:24,mix:{sapper:0.48,brute:0.42,raider:0.10},mult:0.9,win:'اصمد حتى نهاية المدة'},
   boss:{n:'طاغية',cls:'boss',dur:0,batches:2,gap:22,mix:{raider:0.50,brute:0.30,sapper:0.20},mult:0.5,win:'اقتل الطاغية'}
 };
-
 var DIF={
   easy:{hp:0.65,dmg:0.65,loot:1.15},
   normal:{hp:0.85,dmg:0.80,loot:1.0},
@@ -540,7 +698,121 @@ var DIF={
 };
 var MODES={auto:'أقرب بوابة بها عدو',hold:'متمركز',engage:'اشتباك حر',retreat:'انسحاب'};
 
+/* ---------- ميزة ٢: المواسم ---------- */
+var SEASONS=[
+  {id:'autumn',name:'الخريف',icon:'🍂',eff:'إنتاج طبيعي',foodMult:1.0,spdMult:1.0,weatherPool:['clear','clear','fog']},
+  {id:'winter',name:'الشتاء',icon:'❄️',eff:'الأعداء أبطأ ٢٠٪ · الغذاء -٢٥٪',foodMult:0.75,spdMult:0.8,weatherPool:['clear','snow','fog']},
+  {id:'spring',name:'الربيع',icon:'🌱',eff:'الغذاء +٣٠٪ · العدو أنشط ١٠٪',foodMult:1.3,spdMult:1.1,weatherPool:['clear','rain','clear']},
+  {id:'summer',name:'الصيف',icon:'☀️',eff:'إنتاج أعلى · عواصف رملية محتملة',foodMult:1.1,spdMult:1.0,weatherPool:['clear','sandstorm','clear']}
+];
+
+/* ---------- ميزة ٨: الطقس ---------- */
+var WEATHER={
+  clear:{name:'صحو',icon:'☀️',eff:'لا تأثير',visMult:1.0,spdMult:1.0,dmgMult:1.0},
+  fog:{name:'ضباب',icon:'🌫️',eff:'مدى الأبراج -٣٠٪',visMult:0.7,spdMult:1.0,dmgMult:1.0},
+  rain:{name:'مطر',icon:'🌧️',eff:'العدو أبطأ ١٥٪',visMult:1.0,spdMult:0.85,dmgMult:1.0},
+  snow:{name:'ثلج',icon:'🌨️',eff:'العدو أبطأ ٢٥٪ · الغذاء -١٠٪',visMult:1.0,spdMult:0.75,dmgMult:1.0},
+  sandstorm:{name:'عاصفة رملية',icon:'🌪️',eff:'مدى الأبراج -٥٠٪ · العدو أبطأ ١٠٪',visMult:0.5,spdMult:0.9,dmgMult:1.0}
+};
+
+/* ---------- ميزة ١١: الملوك الخمسة ---------- */
+var KINGS=[
+  {id:'wolf',name:'الذئب الأسود',icon:'🐺',wave:10,trait:'يتسلل ليلاً — أعداؤه أسرع',spdMult:1.3,hpMult:1.0,quote:'سألتهمُ الظلامَ نفسَه'},
+  {id:'sand',name:'ملكة الرمال',icon:'👑',wave:20,trait:'منجنيقات فقط — لا مشاة',engineOnly:true,hpMult:1.2,quote:'الرمالُ تبتلعُ كلَّ سور'},
+  {id:'iron',name:'السلطان الحديدي',icon:'⚙️',wave:30,trait:'مدرّعون ثقيلو الدرع',armorPlus:6,hpMult:1.4,quote:'درعي لا يعرفُ الكسر'},
+  {id:'ash',name:'أمير الرماد',icon:'🔥',wave:40,trait:'يحرق البوابات — ضرر مضاعف عليها',gateDmgMult:2.0,hpMult:1.6,quote:'سأجعلُ قلعتَكَ رماداً'},
+  {id:'final',name:'الطاغية الأعظم',icon:'💀',wave:50,trait:'المعركة الأخيرة — كل شيء',final:true,hpMult:2.5,quote:'أنا من أخذَ عرشَ أبيك'}
+];
+
+/* ---------- ميزة ١٥: الحضارات ---------- */
+var CIVS=[
+  {id:'ashur',name:'آشور',icon:'🦁',desc:'حضارة الحرب — جنودك +١٥٪ ضرر',bonus:{soldDmg:1.15},unlock:0},
+  {id:'phoenicia',name:'قرطاج',icon:'⛵',desc:'حضارة التجارة — ذهب +٢٥٪',bonus:{goldMult:1.25},unlock:1},
+  {id:'persia',name:'فارس',icon:'🏹',desc:'حضارة الرماة — الأبراج +٢٠٪ مدى',bonus:{towerRange:1.2},unlock:2},
+  {id:'byzant',name:'بيزنطة',icon:'🏛️',desc:'حضارة الأسوار — متانة السور +٢٠٪',bonus:{wallMult:1.2},unlock:3},
+  {id:'viking',name:'الفايكنج',icon:'🪓',desc:'حضارة البحر — غنائم +٣٠٪ لكن أعداء أقسى',bonus:{goldMult:1.3,enemyHp:1.15},unlock:5}
+];
+
+/* ---------- ميزة ٢٠: عائلات النبلاء ---------- */
+var NOBLES=[
+  {id:'sword',name:'بيت السيف',icon:'⚔️',desc:'عائلة عسكرية — جنودك أقوى',bonus:{soldDmg:1.2},cost:80},
+  {id:'coin',name:'بيت الدينار',icon:'💰',desc:'عائلة تجارية — ذهب أكثر من الغنائم',bonus:{goldMult:1.3},cost:80},
+  {id:'plow',name:'بيت المحراث',icon:'🌾',desc:'عائلة زراعية — إنتاج غذاء أعلى',bonus:{foodMult:1.3},cost:80},
+  {id:'quill',name:'بيت القلم',icon:'📜',desc:'عائلة عالمة — إصلاح أرخص',bonus:{repairCost:0.7},cost:80}
+];
+
+/* ---------- ميزة ١٨: الأحياء الداخلية ---------- */
+var DISTRICTS=[
+  {id:'market',name:'السوق الكبير',icon:'🏪',desc:'+١٥٪ ذهب من الغنائم وأسعار أفضل',cost:120},
+  {id:'temple',name:'ساحة الاحتفال',icon:'🎪',desc:'معنويات أعلى: جنودك +١٠٪ صحة',cost:150},
+  {id:'quarter',name:'حي الجند',icon:'⚔️',desc:'سعة الجنود +٢ إضافية',cost:180},
+  {id:'forge',name:'حي الحدادين',icon:'🔨',desc:'أبراج +١٠٪ ضرر',cost:200},
+  {id:'garden',name:'البستان الملكي',icon:'🌳',desc:'غذاء +٢٠٪ وإنتاج أعلى',cost:160}
+];
+
+/* ---------- ميزة ٦: التشكيلات العسكرية ---------- */
+var FORMATIONS=[
+  {id:'none',name:'بدون تشكيل',icon:'⭕',desc:'كل جندي يقاتل بمفرده',bonus:{}},
+  {id:'turtle',name:'السلحفاة',icon:'🛡️',desc:'درع ثقيل: ضرر مستلم -٣٠٪ لكن حركة أبطأ',bonus:{dmgTaken:0.7,spd:0.8}},
+  {id:'arrow',name:'الرماة خلف الدروع',icon:'🏹',desc:'الأبراج +٢٥٪ ضرر والجنود يحمونها',bonus:{towerDmg:1.25}},
+  {id:'cavalry',name:'الفرسان المتجولون',icon:'🐎',desc:'حركة +٤٠٪ — الجنود يصلون أسرع',bonus:{spd:1.4}}
+];
+
+/* ---------- ميزة ٧: أسلحة الحصار التي تبنيها ---------- */
+var SIEGE_WEAPONS=[
+  {id:'ballista',name:'العرّادة',icon:'🏹',desc:'تطلق سهاماً ثقيلة على الأعداء من فوق السور',cost:{wood:80,iron:60},dmg:25,rate:2.0},
+  {id:'catapult',name:'المنجنيق المضاد',icon:'🪨',desc:'يقذف صخوراً على منجنيقات العدو',cost:{wood:120,iron:80},dmg:40,rate:3.0},
+  {id:'tower_siege',name:'برج الحصار',icon:'🗼',desc:'برج متحرك يكشف مدى أبعد للأبراج',cost:{wood:150,iron:100},dmg:0,rate:0,rangeBonus:80}
+];
+
+/* ---------- ميزة ٢٣: رسالة الملك المفقود ---------- */
+var KING_LETTERS=[
+  'يا وليّ عهدي... إن قرأت هذه الرسالة فقد سقطتُ. لكن العرش لم يسقط بعد.',
+  'الطاغية الذي تحاربه لم يأتِ من العدم. كان جنرالاً في جيشي. خانني.',
+  'القلعة التي بنيتَها كانت مخبأ الكنز. لا تخبر أحداً.',
+  'الخيانة أقرب مما تظن. راقب نبلاءك. أحدهم يراسل العدو.',
+  'حين تهزم الطاغية الأعظم، ستجد في معطفه خاتم أبيك. عندها ستعرف الحقيقة.'
+];
+
+/* ---------- ميزة ٢٥: سجل الملاحم ---------- */
+var CHRONICLE_TYPES={
+  victory:{icon:'✅',name:'نصر'},
+  flawless:{icon:'🏆',name:'صدّ مثالي'},
+  deter:{icon:'🛡️',name:'ردع'},
+  defeat:{icon:'💀',name:'هزيمة'},
+  king:{icon:'👑',name:'ملك'},
+  betrayal:{icon:'🗡️',name:'خيانة'},
+  letter:{icon:'📜',name:'رسالة'},
+  season:{icon:'🍂',name:'فصل'},
+  civ:{icon:'🏛️',name:'حضارة'}
+};
+
+/* ---------- ميزة ٢٦: Prestige ---------- */
+var PRESTIGE={
+  threshold:50,
+  bonusPerRun:0.05
+};
+
+/* ---------- ميزة ٩: الأنفاق ---------- */
+var TUNNEL_STATE={built:false,discovered:false};
+
+/* ---------- ميزة ١٠: الحرب النفسية / المعنويات ---------- */
+var MORALE={
+  base:100,
+  brokenGate:-8,
+  killEnemy:+2,
+  soldierDown:-5,
+  perfectWave:+10
+};
+
+/* ---------- الحالة الرئيسية ---------- */
 var S={
+  site:null,
+  seasonIdx:0,
+  weather:'clear',
+  formation:'none',
+  siegeWeapons:[],
+  morale:100,
   resources:{wood:100,iron:40,food:60,gold:25},
   max:{wood:200,iron:200,food:200},
   workers:3,
@@ -551,6 +823,13 @@ var S={
   repairCrew:0,
   wallHP:900,
   buildings:{},
+  nobles:[],
+  districts:{},
+  kingLetters:0,
+  kingsDefeated:[],
+  chronicle:[],
+  prestige:{runs:0,civ:'ashur',unlocked:['ashur']},
+  enemyMemory:{wallFocus:0,towerFocus:0,soldierFocus:0},
   wave:{number:1,remaining:120000,pattern:'normal',gates:['N'],power:0,count:3},
   log:[],
   lastTick:0,lastSave:0,
@@ -560,46 +839,322 @@ var S={
   interval:180000,
   firstDelay:120000
 };
+function initNobles(){
+  S.nobles=[];
+  for(var i=0;i<NOBLES.length;i++){
+    S.nobles.push({id:NOBLES[i].id,state:'neutral'});
+  }
+}
+function initDistricts(){
+  S.districts={};
+  for(var i=0;i<DISTRICTS.length;i++){
+    S.districts[DISTRICTS[i].id]=false;
+  }
+}
+function currentSeason(){ return SEASONS[S.seasonIdx%SEASONS.length]; }
+function currentWeather(){ return WEATHER[S.weather]||WEATHER.clear; }
+function seasonWaveInCycle(){ return ((S.wave.number-1)%4)+1; }
+function currentCiv(){
+  for(var i=0;i<CIVS.length;i++){ if(CIVS[i].id===S.prestige.civ) return CIVS[i]; }
+  return CIVS[0];
+}
+function hasNoble(id){
+  for(var i=0;i<S.nobles.length;i++){ if(S.nobles[i].id===id&&S.nobles[i].state==='ally') return true; }
+  return false;
+}
+function nobleBonus(key,def){
+  var v=def;
+  for(var i=0;i<NOBLES.length;i++){
+    if(NOBLES[i].bonus[key]&&hasNoble(NOBLES[i].id)){ v=NOBLES[i].bonus[key]; break; }
+  }
+  return v;
+}
+function civBonus(key,def){
+  var c=currentCiv();
+  return (c.bonus&&c.bonus[key])?c.bonus[key]:def;
+}
+function kingForWave(w){
+  for(var i=0;i<KINGS.length;i++){ if(KINGS[i].wave===w) return KINGS[i]; }
+  return null;
+}
+function addChronicle(type,text){
+  S.chronicle.unshift({type:type,text:text,time:Date.now(),wave:S.wave.number});
+  if(S.chronicle.length>100) S.chronicle.length=100;
+}
 
+/* ---------- الكيانات والمتغيرات الحية ---------- */
 var B=null;
 var WK=[],SD=[],RW=[],PJ=[],PT=[],LOB=[];
-var tcd=[0,0,0,0], tang=[0,0,0,0], smokeT=0;
-var selSid=null, placeMode=null, placePos={x:600,y:600};
-var shake=0, tscale=1, flashT=0;
-var curPanel=null, curB=null, tickH=null, rafOn=false;
-var cv=el('world'), ctx=cv.getContext('2d');
+var tcd=[0,0,0,0],tang=[0,0,0,0],smokeT=0;
+var selSid=null,placeMode=null,placePos={x:600,y:600};
+var shake=0,tscale=1,flashT=0;
+var curPanel=null,curB=null,tickH=null,rafOn=false;
+var cv=el('world'),ctx=cv.getContext('2d');
 var vw=1,vh=1,dpr=1;
 var cam={x:600,y:600,z:0.6};
-var terrain=null, lastF=0, hudAcc=0, rosterAcc=0;
+var terrain=null,lastF=0,hudAcc=0,rosterAcc=0;
 
-function DF(){ return DIF[S.set.diff]||DIF.normal; }
-function nSold(){ return S.roster.length; }
-function recById(sid){
-  for(var i=0;i<S.roster.length;i++){ if(S.roster[i].id===sid) return S.roster[i]; }
-  return null;
+/* ---------- الصوت ---------- */
+var AU={
+  ac:null,mg:null,seen:{},
+  init:function(){
+    if(this.ac) return;
+    try{
+      var AC=window.AudioContext||window.webkitAudioContext;
+      if(!AC) return;
+      this.ac=new AC();
+      this.mg=this.ac.createGain();
+      this.mg.gain.value=S.set.sound?0.45:0;
+      this.mg.connect(this.ac.destination);
+    }catch(e){ this.ac=null; }
+  },
+  resume:function(){ try{ if(this.ac&&this.ac.state==='suspended')this.ac.resume(); }catch(e){} },
+  vol:function(){ if(this.mg) this.mg.gain.value=S.set.sound?0.45:0; },
+  ok:function(k,ms){
+    var t=Date.now();
+    if(this.seen[k]&&t-this.seen[k]<ms) return false;
+    this.seen[k]=t; return true;
+  },
+  tone:function(f,d,type,g,to){
+    if(!this.ac||!S.set.sound) return;
+    try{
+      var t=this.ac.currentTime,o=this.ac.createOscillator(),gn=this.ac.createGain();
+      o.type=type||'sine'; o.frequency.setValueAtTime(f,t);
+      if(to) o.frequency.exponentialRampToValueAtTime(Math.max(20,to),t+d);
+      gn.gain.setValueAtTime(0.0001,t);
+      gn.gain.linearRampToValueAtTime(g||0.2,t+0.01);
+      gn.gain.exponentialRampToValueAtTime(0.0001,t+d);
+      o.connect(gn); gn.connect(this.mg);
+      o.start(t); o.stop(t+d+0.03);
+    }catch(e){}
+  },
+  noise:function(d,f,g,q){
+    if(!this.ac||!S.set.sound) return;
+    try{
+      var t=this.ac.currentTime,len=Math.max(1,Math.floor(this.ac.sampleRate*d));
+      var buf=this.ac.createBuffer(1,len,this.ac.sampleRate),ch=buf.getChannelData(0);
+      for(var i=0;i<len;i++) ch[i]=(Math.random()*2-1)*(1-i/len);
+      var src=this.ac.createBufferSource(); src.buffer=buf;
+      var fl=this.ac.createBiquadFilter(); fl.type='bandpass'; fl.frequency.value=f||900; fl.Q.value=q||1;
+      var gn=this.ac.createGain(); gn.gain.value=g||0.2;
+      src.connect(fl); fl.connect(gn); gn.connect(this.mg);
+      src.start(t);
+    }catch(e){}
+  },
+  shot:function(){ if(this.ok('s',55)) this.noise(0.09,2100,0.08,2); },
+  hit:function(){ if(this.ok('h',45)) this.noise(0.06,600,0.10,1.4); },
+  kill:function(){ if(this.ok('k',60)){ this.noise(0.16,320,0.15,0.8); this.tone(180,0.14,'square',0.06,70); } },
+  gateHit:function(){ if(this.ok('g',110)){ this.noise(0.14,180,0.18,0.7); this.tone(90,0.16,'sine',0.12,50); } },
+  gateBreak:function(){ this.noise(0.6,140,0.30,0.5); this.tone(70,0.7,'sawtooth',0.18,32); },
+  horn:function(){ this.tone(146,0.75,'sawtooth',0.14,110); this.tone(220,0.7,'triangle',0.09,164); },
+  order:function(){ this.tone(392,0.28,'triangle',0.10,523); },
+  lob:function(){ if(this.ok('l',200)) this.noise(0.25,300,0.14,0.8); },
+  roar:function(){ this.tone(58,1.3,'sawtooth',0.22,34); this.noise(1.1,120,0.20,0.4); },
+  batch:function(){ this.tone(330,0.3,'square',0.10,220); this.noise(0.25,800,0.10,1); },
+  retreat:function(){ this.tone(392,0.5,'sine',0.10,262); this.tone(294,0.6,'triangle',0.08,196); },
+  caravan:function(){ this.tone(262,0.3,'sine',0.08,392); this.tone(330,0.4,'triangle',0.06,440); },
+  season:function(){ this.tone(440,0.4,'sine',0.1,550); this.tone(550,0.5,'triangle',0.08,660); },
+  king:function(){ this.tone(110,1.0,'sawtooth',0.2,55); this.tone(165,0.8,'square',0.12,82); this.noise(0.8,200,0.18,0.5); },
+  win:function(){
+    var self=this,notes=[523,659,784,1046];
+    for(var i=0;i<notes.length;i++){
+      (function(f,ms){ setTimeout(guard('audio',function(){ self.tone(f,0.4,'triangle',0.11); }),ms); })(notes[i],i*95);
+    }
+  },
+  lose:function(){
+    var self=this,notes=[330,262,196,131];
+    for(var i=0;i<notes.length;i++){
+      (function(f,ms){ setTimeout(guard('audio',function(){ self.tone(f,0.5,'sawtooth',0.11,f*0.7); }),ms); })(notes[i],i*130);
+    }
+  },
+  coin:function(){ if(this.ok('c',70)) this.tone(1180,0.11,'triangle',0.08,1560); },
+  build:function(){ this.tone(420,0.14,'square',0.08,620); this.noise(0.12,700,0.07,1); }
+};
+
+/* ---------- الحفظ ---------- */
+var KEY='sultans_v2';
+function save(){
+  try{
+    localStorage.setItem(KEY,JSON.stringify({
+      site:S.site?S.site.id:null,
+      seasonIdx:S.seasonIdx,weather:S.weather,formation:S.formation,
+      siegeWeapons:S.siegeWeapons,morale:S.morale,
+      resources:S.resources,workers:S.workers,roster:S.roster,nextSid:S.nextSid,
+      wounded:S.wounded,healPool:S.healPool,repairCrew:S.repairCrew,wallHP:S.wallHP,
+      buildings:S.buildings,nobles:S.nobles,districts:S.districts,
+      kingLetters:S.kingLetters,kingsDefeated:S.kingsDefeated,
+      chronicle:S.chronicle.slice(0,60),prestige:S.prestige,
+      enemyMemory:S.enemyMemory,
+      waveNumber:S.wave.number,remaining:S.wave.remaining,
+      log:S.log.slice(0,60),lastSave:Date.now(),
+      survived:S.survived,lost:S.lost,kills:S.kills,deterred:S.deterred,
+      started:S.started,set:S.set
+    }));
+  }catch(e){}
 }
-function unitById(sid){
-  for(var i=0;i<SD.length;i++){ if(SD[i].sid===sid) return SD[i]; }
-  return null;
+function ensureBuildings(){
+  for(var id in BUILD){
+    if(!S.buildings[id]||typeof S.buildings[id]!=='object') S.buildings[id]={level:0,workers:0};
+    var b=S.buildings[id],t=BUILD[id];
+    b.level=clamp(Math.floor(num(b.level,0)),0,t.max);
+    b.workers=clamp(Math.floor(num(b.workers,0)),0,Math.min(t.mw,b.level));
+  }
 }
 
+/* === نهاية الجزء الأول (١/٤) === *//* ============================================================
+   الجزء الثاني (٢/٤): الحفظ/التحميل، الاقتصاد، الموجات،
+   المعركة، التشكيلات، الحصار، الطقس، الأنفاق، المعنويات،
+   الملوك، العدو المتعلم، الكيانات
+   ============================================================ */
+
+/* ---------- التحميل ---------- */
+function load(){
+  try{
+    var raw=localStorage.getItem(KEY);
+    if(!raw) return false;
+    var d=JSON.parse(raw);
+    if(!d||!d.started) return false;
+    if(d.site){
+      for(var i=0;i<SITES.length;i++){ if(SITES[i].id===d.site){ S.site=SITES[i]; break; } }
+    }
+    S.seasonIdx=Math.floor(num(d.seasonIdx,0));
+    S.weather=(WEATHER[d.weather])?d.weather:'clear';
+    S.formation=(FORMATIONS.some(function(f){return f.id===d.formation;}))?d.formation:'none';
+    S.siegeWeapons=Array.isArray(d.siegeWeapons)?d.siegeWeapons:[];
+    S.morale=clamp(num(d.morale,100),0,100);
+    S.resources={
+      wood:num(d.resources&&d.resources.wood,100),
+      iron:num(d.resources&&d.resources.iron,40),
+      food:num(d.resources&&d.resources.food,60),
+      gold:num(d.resources&&d.resources.gold,25)
+    };
+    S.workers=Math.max(3,Math.floor(num(d.workers,3)));
+    S.roster=[]; S.nextSid=Math.max(1,Math.floor(num(d.nextSid,1)));
+    if(Array.isArray(d.roster)){
+      for(var j=0;j<d.roster.length;j++){
+        var r=d.roster[j]; if(!r) continue;
+        var home=null;
+        if(r.home&&typeof r.home.x==='number'&&typeof r.home.y==='number'){
+          home={x:clamp(r.home.x,20,WORLD-20),y:clamp(r.home.y,20,WORLD-20)};
+        }
+        S.roster.push({id:Math.floor(num(r.id,j+1)),home:home});
+      }
+    }
+    S.wounded=Math.max(0,Math.floor(num(d.wounded,0)));
+    S.healPool=num(d.healPool,0);
+    S.repairCrew=clamp(Math.floor(num(d.repairCrew,0)),0,4);
+    S.buildings=d.buildings||{};
+    S.nobles=Array.isArray(d.nobles)&&d.nobles.length?d.nobles:null;
+    if(!S.nobles) initNobles();
+    S.districts=Object.assign({},d.districts||{});
+    initDistricts();
+    for(var dk in (d.districts||{})){ if(S.districts.hasOwnProperty(dk)) S.districts[dk]=!!d.districts[dk]; }
+    S.kingLetters=Math.floor(num(d.kingLetters,0));
+    S.kingsDefeated=Array.isArray(d.kingsDefeated)?d.kingsDefeated:[];
+    S.chronicle=Array.isArray(d.chronicle)?d.chronicle:[];
+    S.prestige=Object.assign({runs:0,civ:'ashur',unlocked:['ashur']},d.prestige||{});
+    S.enemyMemory=Object.assign({wallFocus:0,towerFocus:0,soldierFocus:0},d.enemyMemory||{});
+    S.log=Array.isArray(d.log)?d.log:[];
+    S.survived=Math.floor(num(d.survived,0));
+    S.lost=Math.floor(num(d.lost,0));
+    S.kills=Math.floor(num(d.kills,0));
+    S.deterred=Math.floor(num(d.deterred,0));
+    S.started=true;
+    if(d.set){
+      S.set.sound=d.set.sound!==false;
+      S.set.speed=(d.set.speed===2)?2:1;
+      if(DIF[d.set.diff]) S.set.diff=d.set.diff;
+    }
+    ensureBuildings();
+    applyMax();
+    S.wallHP=clamp(num(d.wallHP,wallMax()),0,wallMax());
+    var cap=soldierCap();
+    while(S.roster.length>cap) S.roster.pop();
+    S.wounded=clamp(S.wounded,0,Math.max(0,cap-S.roster.length));
+    for(var k=0;k<S.roster.length;k++){ if(S.roster[k].id>=S.nextSid) S.nextSid=S.roster[k].id+1; }
+    S.repairCrew=clamp(S.repairCrew,0,Math.max(0,S.workers-assignedW()));
+    S.wave.number=Math.max(1,Math.floor(num(d.waveNumber,1)));
+    planWave();
+    var gone=Math.min((Date.now()-num(d.lastSave,Date.now()))/1000,8*3600);
+    if(gone>30) offline(gone);
+    S.wave.remaining=clamp(num(d.remaining,S.interval)-gone*1000,60000,S.interval);
+    return true;
+  }catch(e){ return false; }
+}
+function offline(sec){
+  var g={wood:0,iron:0,food:0,gold:0};
+  for(var id in BUILD){
+    var t=BUILD[id],b=S.buildings[id];
+    if(b&&b.level>0&&t.prod) g[t.prod]+=prod(id)*sec;
+  }
+  for(var r in g){
+    if(r==='gold') S.resources.gold+=Math.floor(g.gold);
+    else S.resources[r]=Math.min(S.max[r],S.resources[r]+Math.floor(g[r]));
+  }
+  var h='<div class="note" style="margin-bottom:12px">غبت <b style="color:var(--cyan)">'+fmtDur(sec)+'</b> — استمرت قاعدتك بالعمل (حد 8 ساعات).</div>';
+  var any=false;
+  for(var r2 in g){
+    if(g[r2]>0){ any=true; h+='<div class="row"><span class="l">'+RM[r2].i+' '+RM[r2].n+'</span><span class="v g">+'+Math.floor(g[r2])+'</span></div>'; }
+  }
+  if(!any) h+='<p class="note" style="text-align:center;padding:12px">لا إنتاج أثناء الغياب — طوّر مباني الإنتاج.</p>';
+  h+='<button class="btn" data-act="close" data-p="pOffline">شكراً</button>';
+  el('offBody').innerHTML=h;
+  openP('pOffline');
+  addLog('عدت بعد '+fmtDur(sec)+'، تم تحصيل الموارد.','info');
+}
+
+/* ---------- الاقتصاد (يتأثر بالموقع والموسم والحضارة والنبلاء) ---------- */
 function lv(id){ var b=S.buildings[id]; return b?b.level:0; }
-function wallMax(){ return 720+lv('wall')*180; }
+/* ميزة ١٦ + بيزنطة: متانة السور تعتمد على المستوى والحضارة */
+function wallMax(){
+  var base=720+lv('wall')*180;
+  return Math.round(base*civBonus('wallMult',1));
+}
 function gateThird(){ return wallMax()/3; }
 function gateArmor(){ return lv('wall')*0.9; }
-function soldierCap(){ return lv('barracks')*2; }
-function soldierHP(){ return 85+lv('barracks')*7; }
-function soldierDMG(){ return 19+lv('barracks')*1.9; }
+function soldierCap(){
+  var c=lv('barracks')*2;
+  if(S.districts.quarter) c+=2;
+  return c;
+}
+function soldierHP(){
+  var hp=85+lv('barracks')*7;
+  if(S.districts.temple) hp*=1.1;
+  return hp;
+}
+/* ضرر الجنود: بيت السيف + الحضارة + المعنويات + التشكيل */
+function soldierDMG(){
+  var d=(19+lv('barracks')*1.9);
+  d*=nobleBonus('soldDmg',1);
+  d*=civBonus('soldDmg',1);
+  d*=(0.7+0.3*(S.morale/100));
+  return d;
+}
 function capStore(){ return 200+lv('storage')*400; }
 function boost(){
   var w=S.buildings.workshop;
-  return (w&&w.level>0)?(1+w.level*0.05+w.workers*0.02):1;
+  var b=(w&&w.level>0)?(1+w.level*0.05+w.workers*0.02):1;
+  if(S.districts.garden) b*=1.05;
+  return b;
 }
+/* ميزة ١٢: الجيوش المنظمة — الأعداء يأتون في تشكيلات */
 function prod(id){
-  var t=BUILD[id], b=S.buildings[id];
+  var t=BUILD[id],b=S.buildings[id];
   if(!t||!b||!b.level||!t.prod) return 0;
   var r=t.rate*b.level+b.workers*t.rate*0.5;
   if(id!=='workshop') r*=boost();
+  if(S.site){
+    var m=S.site.mods;
+    if(t.prod==='wood') r*=(m.woodMult||1);
+    if(t.prod==='iron') r*=(m.ironMult||1);
+    if(t.prod==='food') r*=(m.foodMult||1);
+  }
+  if(t.prod==='food'){
+    r*=currentSeason().foodMult;
+    r*=currentWeather().foodMult||1;
+    r*=nobleBonus('foodMult',1);
+    if(S.districts.garden) r*=1.2;
+  }
   return r;
 }
 function healRate(){
@@ -610,17 +1165,46 @@ function turCount(){
   var l=lv('tower');
   return l?Math.min(4,2+Math.floor((l-1)/4)):0;
 }
-function turDMG(){ var l=lv('tower'); return l?(9+l*3.4):0; }
+function turDMG(){
+  var l=lv('tower');
+  var d=l?(9+l*3.4):0;
+  if(S.districts.forge) d*=1.1;
+  d*=formationBonus('towerDmg',1);
+  return d;
+}
 function turCD(){ return Math.max(0.36,0.95-lv('tower')*0.038); }
+/* ميزة ٨: الطقس يؤثر على المدى · ميزة ١٥: فارس تزيد المدى */
+function turRange(){
+  var r=TRANGE;
+  r*=currentWeather().visMult;
+  r*=civBonus('towerRange',1);
+  r+=siegeRangeBonus();
+  return r;
+}
+function siegeRangeBonus(){
+  var b=0;
+  for(var i=0;i<S.siegeWeapons.length;i++){
+    var sw=S.siegeWeapons[i];
+    if(sw==='tower_siege') b+=80;
+  }
+  return b;
+}
 function defRating(){
   var d=0;
   if(lv('wall')) d+=15+(lv('wall')-1)*12;
   if(lv('tower')) d+=20+(lv('tower')-1)*15;
-  return d+nSold()*10;
+  d+=nSold()*10;
+  d+=S.siegeWeapons.length*5;
+  if(S.site) d*=(S.site.mods.defMult||1);
+  var hasEnemyNoble=false;
+  for(var i=0;i<S.nobles.length;i++){ if(S.nobles[i].state==='enemy') hasEnemyNoble=true; }
+  if(hasEnemyNoble) d*=0.9;
+  d*=(0.75+0.25*(S.morale/100));
+  return Math.round(d);
 }
 function costOf(id){
-  var t=BUILD[id], b=S.buildings[id];
-  var m=Math.pow(t.mult,b.level), o={};
+  var t=BUILD[id],b=S.buildings[id];
+  var m=Math.pow(t.mult,b.level),o={};
   for(var r in t.cost){ o[r]=Math.floor(t.cost[r]*m); }
   return o;
 }
@@ -642,15 +1226,44 @@ function unlocked(id){
 }
 function assignedW(){ var a=0; for(var i in S.buildings){ a+=S.buildings[i].workers; } return a; }
 function freeW(){ return S.workers-assignedW()-S.repairCrew; }
+function nSold(){ return S.roster.length; }
+function recById(sid){
+  for(var i=0;i<S.roster.length;i++){ if(S.roster[i].id===sid) return S.roster[i]; }
+  return null;
+}
+function unitById(sid){
+  for(var i=0;i<SD.length;i++){ if(SD[i].sid===sid) return SD[i]; }
+  return null;
+}
 
-/* الردع: فقط عندما لا يوجد جنود ولا أبراج */
-function noForce(){ return nSold()===0 && lv('tower')===0; }
+/* ---------- ميزة ٦: التشكيلات ---------- */
+function currentFormation(){
+  for(var i=0;i<FORMATIONS.length;i++){ if(FORMATIONS[i].id===S.formation) return FORMATIONS[i]; }
+  return FORMATIONS[0];
+}
+function formationBonus(key,def){
+  var f=currentFormation();
+  return (f.bonus&&f.bonus[key])?f.bonus[key]:def;
+}
+
+/* ---------- ميزة ١٠: المعنويات ---------- */
+function adjustMorale(d){
+  S.morale=clamp(S.morale+d,0,100);
+}
+
+/* ---------- ميزة ٩: الأنفاق ---------- */
+function tunnelActive(){ return TUNNEL_STATE.built&&!TUNNEL_STATE.discovered; }
+
+/* ---------- قاعدة الردع ---------- */
+function noForce(){ return nSold()===0&&lv('tower')===0; }
 function willDeter(){
   if(S.wave.pattern==='boss') return false;
+  if(kingForWave(S.wave.number)) return false;
   if(!noForce()) return false;
   return defRating()>=S.wave.power;
 }
 
+/* ---------- السور والإصلاح ---------- */
 function sumGates(){
   if(!B) return S.wallHP;
   var s=0;
@@ -660,12 +1273,15 @@ function sumGates(){
 function syncWall(){ if(B) S.wallHP=clamp(sumGates(),0,wallMax()); }
 function repairMissing(){ return Math.max(0,wallMax()-S.wallHP); }
 function tripHP(){ return 24+lv('wall')*1.5; }
-function tripCost(hp){ return {wood:Math.ceil(hp*0.10),iron:Math.ceil(hp*0.04)}; }
+function tripCost(hp){
+  var mult=nobleBonus('repairCost',1);
+  return {wood:Math.ceil(hp*0.10*mult),iron:Math.ceil(hp*0.04*mult)};
+}
 function repairTarget(){
   if(!B) return 'N';
-  var best='N', br=1e9;
+  var best='N',br=1e9;
   for(var i=0;i<GK.length;i++){
-    var k=GK[i], g=B.gh[k];
+    var k=GK[i],g=B.gh[k];
     var ratio=g.max>0?(g.hp/g.max):1;
     if(ratio<br){ br=ratio; best=k; }
   }
@@ -682,199 +1298,30 @@ function addWallHP(amt,gate){
   }
 }
 
-var AU={
-  ac:null,mg:null,seen:{},
-  init:function(){
-    if(this.ac) return;
-    try{
-      var AC=window.AudioContext||window.webkitAudioContext;
-      if(!AC) return;
-      this.ac=new AC();
-      this.mg=this.ac.createGain();
-      this.mg.gain.value=S.set.sound?0.45:0;
-      this.mg.connect(this.ac.destination);
-    }catch(e){ this.ac=null; }
-  },
-  resume:function(){
-    try{ if(this.ac&&this.ac.state==='suspended') this.ac.resume(); }catch(e){}
-  },
-  vol:function(){ if(this.mg) this.mg.gain.value=S.set.sound?0.45:0; },
-  ok:function(k,ms){
-    var t=Date.now();
-    if(this.seen[k]&&t-this.seen[k]<ms) return false;
-    this.seen[k]=t; return true;
-  },
-  tone:function(f,d,type,g,to){
-    if(!this.ac||!S.set.sound) return;
-    try{
-      var t=this.ac.currentTime;
-      var o=this.ac.createOscillator(), gn=this.ac.createGain();
-      o.type=type||'sine';
-      o.frequency.setValueAtTime(f,t);
-      if(to) o.frequency.exponentialRampToValueAtTime(Math.max(20,to),t+d);
-      gn.gain.setValueAtTime(0.0001,t);
-      gn.gain.linearRampToValueAtTime(g||0.2,t+0.01);
-      gn.gain.exponentialRampToValueAtTime(0.0001,t+d);
-      o.connect(gn); gn.connect(this.mg);
-      o.start(t); o.stop(t+d+0.03);
-    }catch(e){}
-  },
-  noise:function(d,f,g,q){
-    if(!this.ac||!S.set.sound) return;
-    try{
-      var t=this.ac.currentTime;
-      var len=Math.max(1,Math.floor(this.ac.sampleRate*d));
-      var buf=this.ac.createBuffer(1,len,this.ac.sampleRate);
-      var ch=buf.getChannelData(0);
-      for(var i=0;i<len;i++){ ch[i]=(Math.random()*2-1)*(1-i/len); }
-      var src=this.ac.createBufferSource(); src.buffer=buf;
-      var fl=this.ac.createBiquadFilter();
-      fl.type='bandpass'; fl.frequency.value=f||900; fl.Q.value=q||1;
-      var gn=this.ac.createGain(); gn.gain.value=g||0.2;
-      src.connect(fl); fl.connect(gn); gn.connect(this.mg);
-      src.start(t);
-    }catch(e){}
-  },
-  shot:function(){ if(this.ok('s',55)) this.noise(0.09,2100,0.08,2); },
-  hit:function(){ if(this.ok('h',45)) this.noise(0.06,600,0.10,1.4); },
-  kill:function(){ if(this.ok('k',60)){ this.noise(0.16,320,0.15,0.8); this.tone(180,0.14,'square',0.06,70); } },
-  gateHit:function(){ if(this.ok('g',110)){ this.noise(0.14,180,0.18,0.7); this.tone(90,0.16,'sine',0.12,50); } },
-  gateBreak:function(){ this.noise(0.6,140,0.30,0.5); this.tone(70,0.7,'sawtooth',0.18,32); },
-  horn:function(){ this.tone(146,0.75,'sawtooth',0.14,110); this.tone(220,0.7,'triangle',0.09,164); },
-  order:function(){ this.tone(392,0.28,'triangle',0.10,523); },
-  lob:function(){ if(this.ok('l',200)) this.noise(0.25,300,0.14,0.8); },
-  roar:function(){ this.tone(58,1.3,'sawtooth',0.22,34); this.noise(1.1,120,0.20,0.4); },
-  batch:function(){ this.tone(330,0.3,'square',0.10,220); this.noise(0.25,800,0.10,1); },
-  retreat:function(){ this.tone(392,0.5,'sine',0.10,262); this.tone(294,0.6,'triangle',0.08,196); },
-  win:function(){
-    var self=this, notes=[523,659,784,1046];
-    for(var i=0;i<notes.length;i++){
-      (function(f,ms){ setTimeout(guard('audio',function(){ self.tone(f,0.4,'triangle',0.11); }),ms); })(notes[i],i*95);
-    }
-  },
-  lose:function(){
-    var self=this, notes=[330,262,196,131];
-    for(var i=0;i<notes.length;i++){
-      (function(f,ms){ setTimeout(guard('audio',function(){ self.tone(f,0.5,'sawtooth',0.11,f*0.7); }),ms); })(notes[i],i*130);
-    }
-  },
-  coin:function(){ if(this.ok('c',70)) this.tone(1180,0.11,'triangle',0.08,1560); },
-  build:function(){ this.tone(420,0.14,'square',0.08,620); this.noise(0.12,700,0.07,1); }
-};
-
-var KEY='thaven_v9';
-function save(){
-  try{
-    localStorage.setItem(KEY,JSON.stringify({
-      resources:S.resources, workers:S.workers, roster:S.roster, nextSid:S.nextSid,
-      wounded:S.wounded, healPool:S.healPool, repairCrew:S.repairCrew, wallHP:S.wallHP,
-      buildings:S.buildings, waveNumber:S.wave.number, remaining:S.wave.remaining,
-      log:S.log.slice(0,60), lastSave:Date.now(),
-      survived:S.survived, lost:S.lost, kills:S.kills, deterred:S.deterred,
-      started:S.started, set:S.set
-    }));
-  }catch(e){}
-}
-function ensureBuildings(){
-  for(var id in BUILD){
-    if(!S.buildings[id]||typeof S.buildings[id]!=='object') S.buildings[id]={level:0,workers:0};
-    var b=S.buildings[id], t=BUILD[id];
-    b.level=clamp(Math.floor(num(b.level,0)),0,t.max);
-    b.workers=clamp(Math.floor(num(b.workers,0)),0,Math.min(t.mw,b.level));
-  }
-}
-function load(){
-  try{
-    var raw=localStorage.getItem(KEY);
-    if(!raw) return false;
-    var d=JSON.parse(raw);
-    if(!d||!d.started) return false;
-    S.resources={
-      wood:num(d.resources&&d.resources.wood,100),
-      iron:num(d.resources&&d.resources.iron,40),
-      food:num(d.resources&&d.resources.food,60),
-      gold:num(d.resources&&d.resources.gold,25)
-    };
-    S.workers=Math.max(3,Math.floor(num(d.workers,3)));
-    S.roster=[];
-    S.nextSid=Math.max(1,Math.floor(num(d.nextSid,1)));
-    if(Array.isArray(d.roster)){
-      for(var i=0;i<d.roster.length;i++){
-        var r=d.roster[i];
-        if(!r) continue;
-        var home=null;
-        if(r.home&&typeof r.home.x==='number'&&typeof r.home.y==='number'){
-          home={x:clamp(r.home.x,20,WORLD-20),y:clamp(r.home.y,20,WORLD-20)};
-        }
-        S.roster.push({id:Math.floor(num(r.id,i+1)),home:home});
-      }
-    }
-    S.wounded=Math.max(0,Math.floor(num(d.wounded,0)));
-    S.healPool=num(d.healPool,0);
-    S.repairCrew=clamp(Math.floor(num(d.repairCrew,0)),0,4);
-    S.buildings=d.buildings||{};
-    S.log=Array.isArray(d.log)?d.log:[];
-    S.survived=Math.floor(num(d.survived,0));
-    S.lost=Math.floor(num(d.lost,0));
-    S.kills=Math.floor(num(d.kills,0));
-    S.deterred=Math.floor(num(d.deterred,0));
-    S.started=true;
-    if(d.set){
-      S.set.sound=d.set.sound!==false;
-      S.set.speed=(d.set.speed===2)?2:1;
-      if(DIF[d.set.diff]) S.set.diff=d.set.diff;
-    }
-    ensureBuildings();
-    applyMax();
-    S.wallHP=clamp(num(d.wallHP,wallMax()),0,wallMax());
-    var cap=soldierCap();
-    while(S.roster.length>cap) S.roster.pop();
-    S.wounded=clamp(S.wounded,0,Math.max(0,cap-S.roster.length));
-    for(var j=0;j<S.roster.length;j++){
-      if(S.roster[j].id>=S.nextSid) S.nextSid=S.roster[j].id+1;
-    }
-    S.repairCrew=clamp(S.repairCrew,0,Math.max(0,S.workers-assignedW()));
-    S.wave.number=Math.max(1,Math.floor(num(d.waveNumber,1)));
-    planWave();
-    var gone=Math.min((Date.now()-num(d.lastSave,Date.now()))/1000,8*3600);
-    if(gone>30) offline(gone);
-    S.wave.remaining=clamp(num(d.remaining,S.interval)-gone*1000,60000,S.interval);
-    return true;
-  }catch(e){ return false; }
-}
-function offline(sec){
-  var g={wood:0,iron:0,food:0,gold:0};
-  for(var id in BUILD){
-    var t=BUILD[id], b=S.buildings[id];
-    if(b&&b.level>0&&t.prod) g[t.prod]+=prod(id)*sec;
-  }
-  for(var r in g){
-    if(r==='gold') S.resources.gold+=Math.floor(g.gold);
-    else S.resources[r]=Math.min(S.max[r],S.resources[r]+Math.floor(g[r]));
-  }
-  var h='<div class="note" style="margin-bottom:12px">غبت <b style="color:var(--cyan)">'+fmtDur(sec)+'</b> — استمرت قاعدتك بالعمل (حد 8 ساعات).</div>';
-  var any=false;
-  for(var r2 in g){
-    if(g[r2]>0){
-      any=true;
-      h+='<div class="row"><span class="l">'+RM[r2].i+' '+RM[r2].n+'</span><span class="v g">+'+Math.floor(g[r2])+'</span></div>';
-    }
-  }
-  if(!any) h+='<p class="note" style="text-align:center;padding:12px">لا إنتاج أثناء الغياب — طوّر مباني الإنتاج.</p>';
-  h+='<button class="btn" data-act="close" data-p="pOffline">شكراً</button>';
-  el('offBody').innerHTML=h;
-  openP('pOffline');
-  addLog('عدت بعد '+fmtDur(sec)+'، تم تحصيل الموارد.','info');
-}
-
+/* ---------- تخطيط الموجات ---------- */
+function DF(){ return DIF[S.set.diff]||DIF.normal; }
 function patternFor(w){
+  if(kingForWave(w)) return 'boss';
   if(w%10===0) return 'boss';
   if(w>=6&&w%5===0) return 'siege';
   if(w>=3&&w%3===0) return 'rush';
   return 'normal';
 }
-function hpScale(w){ return Math.pow(1.055,w-1)*DF().hp; }
+/* ميزة ١٣: العدو المتعلم — يرفع الصحة إذا خسرت كثيراً */
+function learnFactor(){
+  var mem=S.enemyMemory;
+  var f=1;
+  if(mem.wallFocus>3) f+=0.05;
+  if(mem.towerFocus>3) f+=0.05;
+  if(mem.soldierFocus>3) f+=0.05;
+  return f;
+}
+function hpScale(w){ return Math.pow(1.055,w-1)*DF().hp*civBonus('enemyHp',1)*learnFactor(); }
 function dmgScale(w){ return (1+0.025*(w-1))*DF().dmg; }
+/* ميزة ٢+٨: سرعة الأعداء حسب الموسم والطقس والتشكيل */
+function enemySpdMult(){
+  return currentSeason().spdMult*currentWeather().spdMult;
+}
 function waveCount(w,p){ return clamp(Math.round((3+Math.floor(w*0.5))*PAT[p].mult),3,20); }
 function gateCount(w,p){
   if(p==='rush') return 1;
@@ -894,34 +1341,46 @@ function pickGates(n){
   return a.slice(0,clamp(n,1,3));
 }
 function planWave(){
-  var w=S.wave.number, p=patternFor(w);
+  var w=S.wave.number,p=patternFor(w);
   S.wave.pattern=p;
   S.wave.count=waveCount(w,p)+(p==='boss'?1:0)+(p==='siege'?(w>=12?2:1):0);
   S.wave.gates=pickGates(gateCount(w,p));
   S.wave.power=Math.round(S.wave.count*9*hpScale(w)*(p==='boss'?1.4:1));
+  /* اختيار الطقس عشوائياً لكل موجة حسب فصل الموسم (ميزة ٨) */
+  var pool=currentSeason().weatherPool;
+  S.weather=pool[Math.floor(Math.random()*pool.length)];
 }
+/* ميزة ١: تحيز نوع العدو حسب الموقع + الملوك */
 function pickType(P){
-  var r=Math.random(), acc=0;
+  var king=kingForWave(S.wave.number);
+  if(king&&king.engineOnly) return 'engine';
+  if(S.site&&Math.random()<0.25){
+    var bias=S.site.enemyBias;
+    if(ET[bias]) return bias;
+  }
+  var r=Math.random(),acc=0;
   for(var k in P.mix){ acc+=P.mix[k]; if(r<=acc) return k; }
   return 'raider';
 }
 function gateWithEnemies(x,y){
-  var best=null, bd=1e9;
+  var best=null,bd=1e9;
   for(var i=0;i<GK.length;i++){
-    var k=GK[i], has=false;
+    var k=GK[i],has=false;
     for(var j=0;j<B.enemies.length;j++){
       var e=B.enemies[j];
       if(!e.dead&&e.state!=='flee'&&e.gate===k){ has=true; break; }
     }
     if(!has) continue;
-    var g=GATES[k], d=dist(x,y,g.x,g.y);
+    var g=GATES[k],d=dist(x,y,g.x,g.y);
     if(d<bd){ bd=d; best=k; }
   }
   return best||B.gates[0];
 }
 
+/* ---------- بدء المعركة ---------- */
 function startBattle(){
-  var w=S.wave.number, p=S.wave.pattern, P=PAT[p];
+  var w=S.wave.number,p=S.wave.pattern,P=PAT[p];
+  var king=kingForWave(w);
   var third=gateThird();
   var gh={};
   for(var i=0;i<GK.length;i++){
@@ -930,13 +1389,13 @@ function startBattle(){
   }
   var deter=willDeter();
   B={
-    phase:'assault', elapsed:0, intro:2.2, dur:P.dur, pattern:p, wave:w,
-    gates:S.wave.gates.slice(), gh:gh,
-    enemies:[], queue:[], kills:0, total:0, bounty:0,
-    integrity:100, stolen:{wood:0,iron:0,food:0},
-    focus:null, boss:null, bossDead:false, finished:false,
-    batch:0, batches:P.batches, doneT:null, enrage:1,
-    deter:deter
+    phase:'assault',elapsed:0,intro:2.2,dur:P.dur,pattern:p,wave:w,king:king,
+    gates:S.wave.gates.slice(),gh:gh,
+    enemies:[],queue:[],kills:0,total:0,bounty:0,
+    integrity:100,stolen:{wood:0,iron:0,food:0},
+    focus:null,boss:null,bossDead:false,finished:false,
+    batch:0,batches:P.batches,doneT:null,enrage:1,deter:deter,
+    tunnelSpawned:false,siegeCd:0
   };
   PJ=[]; LOB=[];
 
@@ -954,12 +1413,16 @@ function startBattle(){
       var t0=bi*P.gap;
       var cnt=Math.min(per,total-made);
       for(var j=0;j<cnt;j++){
-        var r=Math.random(), gk=B.gates[0];
+        var r=Math.random(),gk=B.gates[0];
         if(B.gates.length===2) gk=(r<0.6)?B.gates[0]:B.gates[1];
         else if(B.gates.length===3) gk=(r<0.6)?B.gates[0]:((r<0.8)?B.gates[1]:B.gates[2]);
         B.queue.push({t:t0+j*0.55+rnd(0,0.3),type:pickType(P),gate:gk,batch:bi,slot:j});
         made++;
       }
+    }
+    /* ميزة ٩: الأنفاق — عدو إضافي يظهر من الداخل في منتصف المعركة */
+    if(tunnelActive()&&w>=8){
+      B.queue.push({t:P.dur>0?P.dur*0.5:12,type:'runner',gate:B.gates[0],batch:B.batches,slot:0,tunnel:true});
     }
     if(p==='boss') B.queue.push({t:2.0,type:'boss',gate:B.gates[0],batch:0,slot:0});
     if(p==='siege'){
@@ -987,8 +1450,17 @@ function startBattle(){
     bn.querySelector('.b2').textContent='لا جنود ولا أبراج — لكن قوتك أعلى من قوتهم';
     bn.querySelector('.b3').textContent='لن يمسّوا السور · مكافأة نجاة فقط';
     AU.retreat();
-    addLog('🛡️ الموجة '+w+' انسحبت قبل الاقتحام — دفاعك '+defRating()+' مقابل '+S.wave.power,'success');
+    addLog('🛡️ الموجة '+w+' انسحبت قبل الاقتحام','success');
     toast('🛡️ سينسحبون — دفاعك أعلى','success');
+  }else if(king){
+    bn.className='king';
+    bn.querySelector('.b1').textContent=king.icon+' '+king.name;
+    bn.querySelector('.b2').textContent='«'+king.quote+'»';
+    bn.querySelector('.b3').textContent=king.trait;
+    AU.king();
+    addLog('👑 '+king.name+' يقود الهجوم!','warning');
+    toast('👑 '+king.name+' قادم!','danger');
+    shake=8;
   }else{
     bn.className='';
     bn.querySelector('.b1').textContent='الموجة '+w+' — '+P.n;
@@ -1005,40 +1477,60 @@ function startBattle(){
   updateHUD();
 }
 
+/* ---------- إنشاء عدو (مع تأثير الملك والحضارة) ---------- */
 function spawn(q){
-  var T=ET[q.type], g=GATES[q.gate];
-  var hs=hpScale(B.wave), ds=dmgScale(B.wave);
-  var row=Math.floor(q.slot/4), col=q.slot%4;
+  var T=ET[q.type],g=GATES[q.gate];
+  var hs=hpScale(B.wave),ds=dmgScale(B.wave);
+  var king=B.king;
+  var row=Math.floor(q.slot/4),col=q.slot%4;
   var perp=(col-1.5)*30+rnd(-5,5);
   var out=320+row*34+rnd(0,20);
   if(T.engine){ out=480; perp=rnd(-40,40); }
   if(T.boss){ out=360; perp=0; }
-  var sx=g.x+g.dx*out+(g.dy!==0?perp:0);
-  var sy=g.y+g.dy*out+(g.dx!==0?perp:0);
+  /* ميزة ٩: عدو النفق يظهر داخل القاعدة مباشرة */
+  var sx,sy;
+  if(q.tunnel){
+    sx=600+rnd(-150,150);
+    sy=600+rnd(-150,150);
+  }else{
+    sx=g.x+g.dx*out+(g.dy!==0?perp:0);
+    sy=g.y+g.dy*out+(g.dx!==0?perp:0);
+  }
   var built=[];
   for(var id in SLOTS){ if(S.buildings[id]&&S.buildings[id].level>0) built.push(id); }
   var tgt=built.length?built[Math.floor(Math.random()*built.length)]:'storage';
   var leader=(!B.deter&&q.slot===0&&!T.engine&&!T.boss);
+  /* ميزة ١١: الملوك يعززون الصحة والدرع */
+  var kingHpMult=king&&king.hpMult?king.hpMult:1;
+  var kingArmorPlus=king&&king.armorPlus?king.armorPlus:0;
   var e={
-    type:q.type, T:T, gate:q.gate,
-    x:sx, y:sy, sx:sx, sy:sy,
-    gid:q.batch+'-'+q.gate, leader:leader,
-    hp:T.hp*hs*(leader?1.5:1), maxHp:T.hp*hs*(leader?1.5:1),
-    dmg:T.dmg*ds, spd:T.spd, armor:T.armor, r:T.r*(leader?1.18:1),
-    state:B.deter?'scout':(T.engine?'engine':'march'),
+    type:q.type,T:T,gate:q.gate,tunnel:!!q.tunnel,
+    x:sx,y:sy,sx:sx,sy:sy,
+    gid:q.batch+'-'+q.gate,leader:leader,
+    hp:T.hp*hs*kingHpMult*(leader?1.5:1),
+    maxHp:T.hp*hs*kingHpMult*(leader?1.5:1),
+    dmg:T.dmg*ds,spd:T.spd*enemySpdMult()*(king&&king.spdMult?king.spdMult:1),
+    armor:T.armor+kingArmorPlus,r:T.r*(leader?1.18:1),
+    state:B.deter?'scout':(q.tunnel?'breach':(T.engine?'engine':'march')),
     scoutT:2.6+rnd(0,1.2),
-    atkCd:rnd(0,0.6), hitT:0, dead:false, fade:1, stun:0, slowT:0, regroup:0,
-    target:SLOTS[tgt], raidId:tgt, jx:rnd(-12,12), jy:rnd(-12,12),
+    atkCd:rnd(0,0.6),hitT:0,dead:false,fade:1,stun:0,slowT:0,regroup:0,
+    target:SLOTS[tgt],raidId:tgt,jx:rnd(-12,12),jy:rnd(-12,12),
     bounty:Math.round(T.bounty*(1+0.05*(B.wave-1))*(leader?2:1)),
-    boss:!!T.boss, engine:!!T.engine, bob:rnd(0,6.28)
+    boss:!!T.boss,engine:!!T.engine,bob:rnd(0,6.28)
   };
   B.enemies.push(e);
   if(e.boss){ B.boss=e; shake=12; AU.roar(); }
+  if(q.tunnel){
+    toast('🕳️ أعداء خرجوا من النفق داخل القاعدة!','danger');
+    addLog('🕳️ تسلل أعداء عبر النفق!','danger');
+    burst(sx,sy,'#8ea3c0',12,90);
+  }
 }
 
+/* ---------- الضرر والقتل ---------- */
 function hurt(e,amt,kind,silent){
   if(!e||e.dead) return;
-  var d=Math.max(1,amt-(kind==='fire'?0:e.armor));
+  var d=Math.max(1,amt-e.armor);
   e.hp-=d; e.hitT=Date.now();
   if(!silent||Math.random()<0.06) floatTxt(e.x+rnd(-6,6),e.y-e.r-8,String(Math.round(d)),'#ffd24a',11);
   if(e.hp<=0) killE(e);
@@ -1048,6 +1540,10 @@ function killE(e){
   if(e.dead) return;
   e.dead=true; e.fade=1;
   B.kills++; S.kills++; B.bounty+=e.bounty;
+  adjustMorale(MORALE.killEnemy);
+  /* ميزة ١٣: العدو يتعلم — ماذا قتلت أكثر */
+  if(e.engine) S.enemyMemory.wallFocus++;
+  else S.enemyMemory.soldierFocus++;
   burst(e.x,e.y,e.T.c,e.boss?26:(e.engine?16:8),e.boss?150:90);
   AU.kill();
   if(B.focus===e) B.focus=null;
@@ -1068,13 +1564,19 @@ function killE(e){
     shake=18; tscale=0.35; flashT=0.5;
     floatTxt(e.x,e.y-40,'سقط الطاغية!','#c9a6ff',19);
     addLog('👑 سقط الطاغية!','success');
+    if(B.king){
+      S.kingsDefeated.push(B.king.id);
+      addChronicle('king','أُسقط '+B.king.icon+' '+B.king.name+' في الموجة '+B.wave);
+    }
     for(var j=0;j<B.enemies.length;j++){ if(!B.enemies[j].dead) B.enemies[j].state='flee'; }
   }
 }
 function hurtGate(k,amt){
   var g=B.gh[k];
   if(!g||g.hp<=0) return;
-  g.hp-=Math.max(2,amt-gateArmor());
+  /* ميزة ١١: أمير الرماد يضاعف الضرر على البوابات */
+  var kingMult=B.king&&B.king.gateDmgMult?B.king.gateDmgMult:1;
+  g.hp-=Math.max(2,(amt-gateArmor())*kingMult);
   g.hitT=Date.now();
   syncWall();
   AU.gateHit();
@@ -1083,6 +1585,7 @@ function hurtGate(k,amt){
   if(g.hp<=0){
     g.hp=0; g.broken=true;
     B.integrity=Math.max(0,B.integrity-5);
+    adjustMorale(MORALE.brokenGate);
     shake=14; flashT=0.45;
     AU.gateBreak();
     burst(G.x,G.y,'#ff7a2f',22,140);
@@ -1102,6 +1605,7 @@ function downSoldier(u){
   }
   if(selSid===u.sid) selSid=null;
   S.wounded++;
+  adjustMorale(MORALE.soldierDown);
   burst(u.x,u.y,'#00ff9c',9,80);
   floatTxt(u.x,u.y-14,'سقط','#ff2e55',11);
   AU.kill();
@@ -1109,7 +1613,7 @@ function downSoldier(u){
   buildRosterStrip();
 }
 function moveTo(o,tx,ty,sp,dt){
-  var dx=tx-o.x, dy=ty-o.y;
+  var dx=tx-o.x,dy=ty-o.y;
   var d=Math.sqrt(dx*dx+dy*dy);
   if(d<3) return true;
   var st=Math.min(d,sp*dt);
@@ -1117,6 +1621,7 @@ function moveTo(o,tx,ty,sp,dt){
   return d-st<3;
 }
 
+/* ---------- تحديث المعركة ---------- */
 function updateBattle(dt){
   if(!B||B.phase==='done') return;
   if(B.intro>0){
@@ -1140,7 +1645,15 @@ function updateBattle(dt){
   }
   if(B.pattern==='boss'&&B.elapsed>120) B.enrage=1+(B.elapsed-120)/60*0.5;
 
+  /* ميزة ٧: أسلحة الحصار التي بنيتها تطلق على الأعداء */
+  B.siegeCd-=dt;
+  if(B.siegeCd<=0){
+    fireSiegeWeapons();
+    B.siegeCd=1.0;
+  }
+
   var i,j,e,g,gh,spd,near,nd,d,u;
+  var gateDmgMult=B.king&&B.king.gateDmgMult?B.king.gateDmgMult:1;
 
   for(i=B.enemies.length-1;i>=0;i--){
     e=B.enemies[i];
@@ -1156,13 +1669,10 @@ function updateBattle(dt){
     spd=e.spd*(e.slowT>0?0.55:1);
 
     if(e.state==='scout'){
-      var sx2=g.x+g.dx*150+e.jx, sy2=g.y+g.dy*150+e.jy;
+      var sx2=g.x+g.dx*150+e.jx,sy2=g.y+g.dy*150+e.jy;
       if(moveTo(e,sx2,sy2,spd,dt)){
         e.scoutT-=dt;
-        if(e.scoutT<=0){
-          e.state='flee';
-          floatTxt(e.x,e.y-16,'😨','#8ea3c0',13);
-        }
+        if(e.scoutT<=0){ e.state='flee'; floatTxt(e.x,e.y-16,'😨','#8ea3c0',13); }
       }
       continue;
     }
@@ -1174,7 +1684,7 @@ function updateBattle(dt){
     if(e.engine){
       if(e.atkCd<=0){
         e.atkCd=e.T.atk;
-        LOB.push({x:e.x,y:e.y,tx:g.x,ty:g.y,t:0,dur:1.1,gate:e.gate,dmg:e.dmg*B.enrage});
+        LOB.push({x:e.x,y:e.y,tx:g.x,ty:g.y,t:0,dur:1.1,gate:e.gate,dmg:e.dmg*B.enrage*gateDmgMult});
         AU.lob();
       }
       continue;
@@ -1189,9 +1699,11 @@ function updateBattle(dt){
     if(near){
       if(e.atkCd<=0){
         e.atkCd=e.T.atk;
-        near.hp-=e.dmg*B.enrage;
+        /* ميزة ٦: التشكيل السلحفاة يقلل الضرر على الجنود */
+        var dmgTaken=formationBonus('dmgTaken',1);
+        near.hp-=e.dmg*B.enrage*dmgTaken;
         burst(near.x,near.y,'#ff2e55',3,50);
-        floatTxt(near.x,near.y-12,String(Math.round(e.dmg*B.enrage)),'#ff2e55',10);
+        floatTxt(near.x,near.y-12,String(Math.round(e.dmg*B.enrage*dmgTaken)),'#ff2e55',10);
         AU.hit();
         if(near.hp<=0) downSoldier(near);
       }
@@ -1229,18 +1741,19 @@ function updateBattle(dt){
     }
   }
 
-  var tc=turCount(), td=turDMG(), tcdv=turCD();
+  /* الأبراج تطلق (مدى متأثر بالطقس والحضارة — ميزة ٨ و١٥) */
+  var tc=turCount(),td=turDMG(),tcdv=turCD(),trange=turRange();
   for(i=0;i<tc;i++){
     tcd[i]-=dt;
     if(tcd[i]>0) continue;
-    var p=TUR[i], best=null, bs=-1e9;
-    if(B.focus&&!B.focus.dead&&dist(p.x,p.y,B.focus.x,B.focus.y)<TRANGE) best=B.focus;
+    var p=TUR[i],best=null,bs=-1e9;
+    if(B.focus&&!B.focus.dead&&dist(p.x,p.y,B.focus.x,B.focus.y)<trange) best=B.focus;
     if(!best){
       for(j=0;j<B.enemies.length;j++){
         e=B.enemies[j];
         if(e.dead||e.state==='flee'||e.state==='scout') continue;
         d=dist(p.x,p.y,e.x,e.y);
-        if(d>TRANGE) continue;
+        if(d>trange) continue;
         var sc=-d+((e.state==='raid'||e.state==='breach')?170:0)+(e.boss?60:0)+(e.leader?35:0);
         if(sc>bs){ bs=sc; best=e; }
       }
@@ -1250,9 +1763,9 @@ function updateBattle(dt){
       var ang=Math.atan2(best.y-p.y,best.x-p.x);
       tang[i]=ang;
       PJ.push({
-        x:p.x+Math.cos(ang)*15, y:p.y+Math.sin(ang)*15,
-        vx:Math.cos(ang)*540, vy:Math.sin(ang)*540,
-        dmg:td, target:best, life:1.6
+        x:p.x+Math.cos(ang)*15,y:p.y+Math.sin(ang)*15,
+        vx:Math.cos(ang)*540,vy:Math.sin(ang)*540,
+        dmg:td,target:best,life:1.6
       });
       AU.shot();
       PT.push({x:p.x+Math.cos(ang)*17,y:p.y+Math.sin(ang)*17,vx:Math.cos(ang)*40,vy:Math.sin(ang)*40,life:0.14,max:0.14,color:'#ffd24a',size:3});
@@ -1288,6 +1801,35 @@ function updateBattle(dt){
   }
 }
 
+/* ---------- ميزة ٧: إطلاق أسلحة الحصار ---------- */
+function fireSiegeWeapons(){
+  if(!B||B.phase==='done') return;
+  for(var s=0;s<S.siegeWeapons.length;s++){
+    var swId=S.siegeWeapons[s];
+    var def=null;
+    for(var k=0;k<SIEGE_WEAPONS.length;k++){ if(SIEGE_WEAPONS[k].id===swId){ def=SIEGE_WEAPONS[k]; break; } }
+    if(!def||!def.dmg) continue;
+    var origin=SLOTS.workshop;
+    var target=null,td=1e9;
+    for(var i=0;i<B.enemies.length;i++){
+      var e=B.enemies[i];
+      if(e.dead||e.state==='flee'||e.state==='scout') continue;
+      /* المنجنيق المضاد يستهدف منجنيقات العدو أولاً */
+      var pref=(swId==='catapult'&&e.engine)?-500:0;
+      var dd=dist(origin.x,origin.y,e.x,e.y)+pref;
+      if(dd<td){ td=dd; target=e; }
+    }
+    if(target&&dist(origin.x,origin.y,target.x,target.y)<600){
+      PJ.push({
+        x:origin.x,y:origin.y-20,
+        vx:0,vy:0,dmg:def.dmg,target:target,life:1.4,siege:true
+      });
+      AU.shot();
+    }
+  }
+}
+
+/* ---------- إنهاء المعركة ---------- */
 function finishBattle(defeat){
   if(!B||B.finished) return;
   B.finished=true; B.phase='done';
@@ -1302,22 +1844,29 @@ function finishBattle(defeat){
     gold=B.wave*2+6;
     wood=6+B.wave;
     iron=3+Math.floor(B.wave/2);
-    S.resources.gold+=gold;
+    S.resources.gold+=Math.round(gold*nobleBonus('goldMult',1)*civBonus('goldMult',1));
     S.resources.wood=Math.min(S.max.wood,S.resources.wood+wood);
     S.resources.iron=Math.min(S.max.iron,S.resources.iron+iron);
     S.survived++; S.deterred++;
+    addChronicle('deter','رُدّت الموجة '+B.wave+' بلا قتال بقوة '+defRating());
     AU.retreat();
   }else if(!defeat){
-    gold=Math.round(B.bounty*DF().loot)+B.wave*3+8+(flawless?B.wave*4+20:0);
+    gold=Math.round(B.bounty*DF().loot*nobleBonus('goldMult',1)*civBonus('goldMult',1))+B.wave*3+8+(flawless?B.wave*4+20:0);
     wood=Math.round(B.bounty*0.9)+10+B.wave*2;
     iron=Math.round(B.bounty*0.45)+5+B.wave;
     S.resources.gold+=gold;
     S.resources.wood=Math.min(S.max.wood,S.resources.wood+wood);
     S.resources.iron=Math.min(S.max.iron,S.resources.iron+iron);
     S.survived++;
+    if(flawless){ adjustMorale(MORALE.perfectWave); addChronicle('flawless','صدّ مثالي للموجة '+B.wave+' — لم يُقتل جندي واحد'); }
+    else addChronicle('victory','صُمدت الموجة '+B.wave+' — '+B.kills+' قتيل');
+    /* ميزة ٩: بعد اكتشاف النفق مرة، يصبح معلوماً */
+    if(tunnelActive()&&B.wave>=8){ TUNNEL_STATE.discovered=true; }
     AU.win();
   }else{
     S.lost++;
+    adjustMorale(-15);
+    addChronicle('defeat','سقطت الدفاعات في الموجة '+B.wave);
     AU.lose();
     var down=Math.floor(nSold()*0.2);
     for(var i=0;i<down;i++){
@@ -1331,7 +1880,16 @@ function finishBattle(defeat){
   var lf=Math.min(S.resources.food,Math.floor(B.stolen.food+S.resources.food*(defeat?0.18:0)));
   S.resources.wood-=lw; S.resources.iron-=li; S.resources.food-=lf;
 
-  var escaped=B.total-B.kills, broken=0;
+  /* ميزة ٢٣: رسالة الملك المفقود كل ٥ موجات ناجية */
+  if(!defeat&&S.survived%5===0&&S.kingLetters<KING_LETTERS.length){
+    var msg=KING_LETTERS[S.kingLetters];
+    S.kingLetters++;
+    addLog('📜 رسالة من الملك المفقود: «'+msg+'»','info');
+    addChronicle('letter','وصلت رسالة غامضة من الملك المفقود ('+S.kingLetters+'/'+KING_LETTERS.length+')');
+    setTimeout(guard('letter',function(){ toast('📜 رسالة غامضة وصلت — افتح السجل','violet'); }),1200);
+  }
+
+  var escaped=B.total-B.kills,broken=0;
   for(var b=0;b<GK.length;b++){ if(B.gh[GK[b]].broken) broken++; }
 
   if(deter){
@@ -1351,6 +1909,7 @@ function finishBattle(defeat){
   el('resBox').className='box '+(defeat?'red':(deter?'green':(flawless?'gold':'green')));
   el('resTitle').textContent=defeat?'💀 انهارت الدفاعات':(deter?'🛡️ انسحبوا أمام دفاعك':(flawless?'🏆 صدّ مثالي':'✅ صمدت القاعدة'));
   var verdict=defeat?'اجتاح الأعداء القاعدة ونهبوا مخازنك':(deter?'لا جنود ولا أبراج لديك، لكن قوتك الدفاعية كانت أعلى — فانصرفوا قبل الاقتحام. مكافأة نجاة فقط بلا غنائم قتلى.':(flawless?'لم يصل عدو واحد إلى داخل القاعدة':'انتهى الهجوم وبقيت القاعدة صامدة'));
+  if(B.king&&!defeat) verdict+=' — لقد هزمت '+B.king.icon+' '+B.king.name+' نفسه!';
   var h='<div class="verdict '+(defeat?'l':(deter?'d':'w'))+'">'+verdict+'</div>';
   h+='<div class="rgrid">';
   if(deter){
@@ -1362,7 +1921,7 @@ function finishBattle(defeat){
     h+='<div class="rc"><div class="l">☠️ قتلى العدو</div><div class="v g">'+B.kills+'/'+B.total+'</div></div>';
     h+='<div class="rc"><div class="l">🏃 أفلتوا</div><div class="v a">'+escaped+'</div></div>';
     h+='<div class="rc"><div class="l">❤️ السلامة</div><div class="v '+(B.integrity>60?'g':(B.integrity>25?'a':'r'))+'">'+Math.round(B.integrity)+'%</div></div>';
-    h+='<div class="rc"><div class="l">🚪 بوابات مكسورة</div><div class="v '+(broken?'r':'g')+'">'+broken+'</div></div>';
+    h+='<div class="rc"><div class="l">🔥 المعنويات</div><div class="v '+(S.morale>60?'g':(S.morale>30?'a':'r'))+'">'+Math.round(S.morale)+'</div></div>';
   }
   h+='</div>';
   if(!defeat){
@@ -1380,6 +1939,16 @@ function finishBattle(defeat){
   openP('pResult');
 
   S.wave.number++;
+  /* ميزة ٢: تغيّر الموسم كل ٤ موجات */
+  var newSeasonIdx=Math.floor((S.wave.number-1)/4);
+  if(newSeasonIdx!==S.seasonIdx){
+    S.seasonIdx=newSeasonIdx;
+    var sn=currentSeason();
+    addLog(sn.icon+' حلّ فصل '+sn.name+' — '+sn.eff,'info');
+    addChronicle('season','بدأ فصل '+sn.icon+' '+sn.name);
+    toast(sn.icon+' فصل '+sn.name+' بدأ','violet');
+    AU.season();
+  }
   planWave();
   S.wave.remaining=S.interval;
   var keep=B;
@@ -1391,10 +1960,11 @@ function finishBattle(defeat){
   updateHUD();
 }
 
+/* ---------- مواءمة الكيانات ---------- */
 function reconcile(){
   var id,i,j;
   for(id in BUILD){
-    var t=BUILD[id], b=S.buildings[id];
+    var t=BUILD[id],b=S.buildings[id];
     if(!t.prod) continue;
     var want=(b&&b.level>0)?b.workers:0;
     var mine=[];
@@ -1402,9 +1972,9 @@ function reconcile(){
     for(i=mine.length;i<want;i++){
       var sl=SLOTS[id];
       WK.push({
-        b:id, x:sl.x+rnd(-12,12), y:sl.y+rnd(-12,12),
-        phase:'store', carry:true, pause:rnd(0,0.8), speed:rnd(52,68),
-        jx:rnd(-16,16), jy:rnd(-16,16), res:t.prod, bob:rnd(0,6.28)
+        b:id,x:sl.x+rnd(-12,12),y:sl.y+rnd(-12,12),
+        phase:'store',carry:true,pause:rnd(0,0.8),speed:rnd(52,68),
+        jx:rnd(-16,16),jy:rnd(-16,16),res:t.prod,bob:rnd(0,6.28)
       });
     }
     var ex=mine.length-want;
@@ -1412,12 +1982,10 @@ function reconcile(){
       if(WK[i].b===id){ WK.splice(i,1); ex--; }
     }
   }
-
   while(RW.length<S.repairCrew){
     RW.push({x:SLOTS.storage.x+rnd(-20,20),y:SLOTS.storage.y+rnd(-20,20),state:'store',carry:null,gate:'N',bob:rnd(0,6.28)});
   }
   while(RW.length>S.repairCrew) RW.pop();
-
   var anch=(lv('barracks')>0)?SLOTS.barracks:SLOTS.storage;
   var mh=soldierHP();
   for(i=0;i<SD.length;i++){
@@ -1425,15 +1993,15 @@ function reconcile(){
     SD[i].hp=Math.min(SD[i].hp,mh);
   }
   for(i=0;i<S.roster.length;i++){
-    var r=S.roster[i], found=null;
+    var r=S.roster[i],found=null;
     for(j=0;j<SD.length;j++){ if(SD[j].sid===r.id){ found=SD[j]; break; } }
     if(!found){
       var hx=r.home?r.home.x:anch.x+rnd(-40,40);
       var hy=r.home?r.home.y:anch.y+rnd(-40,40);
       SD.push({
-        sid:r.id, x:hx, y:hy, hp:mh, maxHp:mh, atkCd:0,
-        dying:false, fade:1, mode:'auto', order:null, autoT:0, autoGate:null,
-        jx:rnd(-30,30), jy:rnd(-30,30), bob:rnd(0,6.28), home:r.home, wt:0, tx:hx, ty:hy
+        sid:r.id,x:hx,y:hy,hp:mh,maxHp:mh,atkCd:0,
+        dying:false,fade:1,mode:'auto',order:null,autoT:0,autoGate:null,
+        jx:rnd(-30,30),jy:rnd(-30,30),bob:rnd(0,6.28),home:r.home,wt:0,tx:hx,ty:hy
       });
     }else{
       found.home=r.home;
@@ -1445,11 +2013,13 @@ function reconcile(){
     if(!ok&&!SD[i].dying) SD[i].dying=true;
   }
 }
+
+/* ---------- تحديث العمال ---------- */
 function updateWorkers(dt){
   for(var i=0;i<WK.length;i++){
     var w=WK[i];
     if(w.pause>0){ w.pause-=dt; continue; }
-    var s=SLOTS[w.b], st=SLOTS.storage;
+    var s=SLOTS[w.b],st=SLOTS.storage;
     if(w.phase==='store'){
       if(moveTo(w,st.x+w.jx,st.y+w.jy,w.speed,dt)){ w.phase='work'; w.carry=false; w.pause=0.5; }
     }else{
@@ -1457,6 +2027,8 @@ function updateWorkers(dt){
     }
   }
 }
+
+/* ---------- تحديث عمال الإصلاح ---------- */
 function updateRepair(dt){
   for(var i=0;i<RW.length;i++){
     var r=RW[i];
@@ -1467,7 +2039,7 @@ function updateRepair(dt){
       continue;
     }
     if(r.state==='store'){
-      var hp=tripHP(), c=tripCost(hp);
+      var hp=tripHP(),c=tripCost(hp);
       if(S.resources.wood>=c.wood&&S.resources.iron>=c.iron){
         S.resources.wood-=c.wood;
         S.resources.iron-=c.iron;
@@ -1480,7 +2052,7 @@ function updateRepair(dt){
     }else{
       if(!r.carry){ r.state='store'; continue; }
       var g=GATES[r.gate]||GATES.N;
-      var tx=g.x-g.dx*24, ty=g.y-g.dy*24;
+      var tx=g.x-g.dx*24,ty=g.y-g.dy*24;
       if(moveTo(r,tx,ty,75,dt)){
         addWallHP(r.carry.hp,r.gate);
         burst(tx,ty,'#ffb020',5,50);
@@ -1490,17 +2062,22 @@ function updateRepair(dt){
     }
   }
 }
+
+/* ---------- هجوم الجندي ---------- */
 function soldierAttack(u,target,dt){
   if(dist(u.x,u.y,target.x,target.y)>24+target.r){
-    moveTo(u,target.x,target.y,92,dt);
+    moveTo(u,target.x,target.y,92*formationBonus('spd',1),dt);
   }else if(u.atkCd<=0){
     u.atkCd=0.7;
     hurt(target,soldierDMG(),'phys');
     burst(target.x,target.y,'#00ff9c',2,45);
   }
 }
+
+/* ---------- تحديث الجنود ---------- */
 function updateSoldiers(dt){
   var anch=(lv('barracks')>0)?SLOTS.barracks:SLOTS.storage;
+  var formSpd=formationBonus('spd',1);
   for(var i=SD.length-1;i>=0;i--){
     var u=SD[i];
     if(u.dying){
@@ -1516,7 +2093,7 @@ function updateSoldiers(dt){
         u.hp=Math.min(u.maxHp,u.hp+dt*6);
         continue;
       }
-      var best=null, bs=-1e9, j, e, d, sc;
+      var best=null,bs=-1e9,j,e,d,sc;
       if(u.mode==='hold'&&u.order){
         for(j=0;j<B.enemies.length;j++){
           e=B.enemies[j];
@@ -1526,16 +2103,16 @@ function updateSoldiers(dt){
           if(d<170&&dr<150){ sc=-d; if(sc>bs){ bs=sc; best=e; } }
         }
         if(best){
-          var tx=best.x, ty=best.y;
+          var tx=best.x,ty=best.y;
           var dd=dist(u.order.x,u.order.y,tx,ty);
           if(dd>140){
             tx=u.order.x+(tx-u.order.x)/dd*140;
             ty=u.order.y+(ty-u.order.y)/dd*140;
           }
-          if(dist(u.x,u.y,best.x,best.y)>24+best.r) moveTo(u,tx,ty,92,dt);
+          if(dist(u.x,u.y,best.x,best.y)>24+best.r) moveTo(u,tx,ty,92*formSpd,dt);
           else soldierAttack(u,best,dt);
         }else{
-          moveTo(u,u.order.x+u.jx*0.4,u.order.y+u.jy*0.4,80,dt);
+          moveTo(u,u.order.x+u.jx*0.4,u.order.y+u.jy*0.4,80*formSpd,dt);
         }
       }else if(u.mode==='engage'){
         for(j=0;j<B.enemies.length;j++){
@@ -1547,7 +2124,7 @@ function updateSoldiers(dt){
           if(sc>bs){ bs=sc; best=e; }
         }
         if(best) soldierAttack(u,best,dt);
-        else moveTo(u,anch.x+u.jx,anch.y+u.jy,60,dt);
+        else moveTo(u,anch.x+u.jx,anch.y+u.jy,60*formSpd,dt);
       }else{
         u.autoT-=dt;
         if(u.autoT<=0){ u.autoT=0.8; u.autoGate=gateWithEnemies(u.x,u.y); }
@@ -1561,7 +2138,7 @@ function updateSoldiers(dt){
           }
         }
         if(best) soldierAttack(u,best,dt);
-        else moveTo(u,g.x-g.dx*54+u.jx,g.y-g.dy*54+u.jy,85,dt);
+        else moveTo(u,g.x-g.dx*54+u.jx,g.y-g.dy*54+u.jy,85*formSpd,dt);
       }
       if(u.hp<u.maxHp) u.hp=Math.min(u.maxHp,u.hp+dt*1.5);
     }else{
@@ -1578,112 +2155,15 @@ function updateSoldiers(dt){
     }
   }
 }
-function updateProj(dt){
-  for(var i=PJ.length-1;i>=0;i--){
-    var p=PJ[i];
-    p.life-=dt;
-    if(p.life<=0){ PJ.splice(i,1); continue; }
-    var tg=p.target;
-    if(tg&&!tg.dead){
-      var dx=tg.x-p.x, dy=tg.y-p.y;
-      var d=Math.sqrt(dx*dx+dy*dy);
-      if(d<12+tg.r){
-        hurt(tg,p.dmg,'phys');
-        burst(tg.x,tg.y,'#00d5ff',3,55);
-        PJ.splice(i,1);
-        continue;
-      }
-      if(d>0.001){ p.vx=dx/d*540; p.vy=dy/d*540; }
-    }
-    p.x+=p.vx*dt; p.y+=p.vy*dt;
-  }
-}
-function burst(x,y,c,n,sp){
-  for(var i=0;i<n;i++){
-    if(PT.length>200) break;
-    var a=rnd(0,6.283), s=rnd(sp*0.3,sp);
-    PT.push({x:x,y:y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:rnd(0.3,0.7),max:0.7,color:c,size:rnd(2,4)});
-  }
-}
-function floatTxt(x,y,txt,c,size){
-  if(PT.length>210) return;
-  PT.push({x:x,y:y,vx:rnd(-6,6),vy:-30,life:1.1,max:1.1,color:c,size:size||13,text:txt});
-}
-function updateParts(dt){
-  for(var i=PT.length-1;i>=0;i--){
-    var p=PT[i];
-    p.life-=dt;
-    if(p.life<=0){ PT.splice(i,1); continue; }
-    p.x+=p.vx*dt; p.y+=p.vy*dt;
-    if(!p.text){ p.vx*=0.95; p.vy*=0.95; }
-  }
-}
-function smoke(dt){
-  if(!lv('workshop')) return;
-  smokeT-=dt;
-  if(smokeT<=0&&PT.length<180){
-    smokeT=0.35;
-    var p=SLOTS.workshop;
-    PT.push({x:p.x+16+rnd(-2,2),y:p.y-32,vx:rnd(-6,6),vy:rnd(-26,-18),life:2.2,max:2.2,color:'rgba(150,163,192,.45)',size:rnd(3,5)});
-  }
-}
 
-function buildTerrain(){
-  terrain=document.createElement('canvas');
-  terrain.width=WORLD; terrain.height=WORLD;
-  var c=terrain.getContext('2d');
-  var R=seeded(1337), i,x,y,r;
-  var grd=c.createLinearGradient(0,0,WORLD,WORLD);
-  grd.addColorStop(0,'#0b1622');
-  grd.addColorStop(0.5,'#0a121d');
-  grd.addColorStop(1,'#0c1a20');
-  c.fillStyle=grd; c.fillRect(0,0,WORLD,WORLD);
-  for(i=0;i<300;i++){
-    x=R()*WORLD; y=R()*WORLD; r=6+R()*24;
-    c.fillStyle='rgba(0,255,156,'+(0.012+R()*0.028).toFixed(3)+')';
-    c.beginPath(); c.arc(x,y,r,0,6.283); c.fill();
-  }
-  c.strokeStyle='#0d2438'; c.lineWidth=48; c.lineCap='round';
-  c.beginPath();
-  for(y=-20;y<=WORLD+20;y+=20){
-    x=95+Math.sin(y/90)*18;
-    if(y===-20) c.moveTo(x,y); else c.lineTo(x,y);
-  }
-  c.stroke();
-  c.strokeStyle='rgba(0,213,255,.2)'; c.lineWidth=3;
-  c.beginPath();
-  for(y=-20;y<=WORLD+20;y+=20){
-    x=85+Math.sin(y/90)*18;
-    if(y===-20) c.moveTo(x,y); else c.lineTo(x,y);
-  }
-  c.stroke();
-  c.strokeStyle='rgba(160,118,74,.13)'; c.lineWidth=27;
-  var targets=[], k;
-  for(k in SLOTS) targets.push(SLOTS[k]);
-  for(k in GATES) targets.push(GATES[k]);
-  for(i=0;i<TUR.length;i++) targets.push(TUR[i]);
-  for(i=0;i<targets.length;i++){
-    c.beginPath(); c.moveTo(600,600); c.lineTo(targets[i].x,targets[i].y); c.stroke();
-  }
-  c.fillStyle='rgba(120,90,60,.10)';
-  c.fillRect(WR.x1,WR.y1,WR.x2-WR.x1,WR.y2-WR.y1);
-  for(i=0;i<130;i++){
-    x=R()*WORLD; y=R()*WORLD;
-    if(x>WR.x1-58&&x<WR.x2+58&&y>WR.y1-58&&y<WR.y2+58) continue;
-    if(Math.abs(x-(95+Math.sin(y/90)*18))<42) continue;
-    r=10+R()*13;
-    c.fillStyle='#122a1c'; c.beginPath(); c.arc(x,y,r,0,6.283); c.fill();
-    c.fillStyle='#1c3d28'; c.beginPath(); c.arc(x-r*0.25,y-r*0.25,r*0.6,0,6.283); c.fill();
-    c.fillStyle='#3a2a18'; c.fillRect(x-1.5,y+r-2,3,5);
-  }
-  for(i=0;i<30;i++){
-    x=R()*WORLD; y=R()*WORLD;
-    if(x>WR.x1-40&&x<WR.x2+40&&y>WR.y1-40&&y<WR.y2+40) continue;
-    c.fillStyle='rgba(142,163,192,.28)';
-    c.beginPath(); c.arc(x,y,4+R()*6,0,6.283); c.fill();
-  }
-}
+/* === نهاية الجزء الثاني (٢/٤) ===
+   الجزء الثالث يكمل: أدوات الرسم، الأرضية، السور، البوابات، الأبراج،
+   المباني، الجنود، الأعداء، المؤثرات، الطقس، الحلقات، والواجهة *//* ============================================================
+   الجزء الثالث (٣/٤): الرسم، الأرضية، المؤثرات، الطقس،
+   الحلقات، والواجهات واللوحات
+   ============================================================ */
 
+/* ---------- أدوات الرسم ---------- */
 function rr(x,y,w,h,r){
   ctx.beginPath();
   ctx.moveTo(x+r,y);
@@ -1714,10 +2194,138 @@ function hbar(x,y,w,h,p,c1,c2){
     rr(x-w/2+1,y+1,fw,h-2,(h-2)/2); ctx.fill();
   }
 }
+function burst(x,y,c,n,sp){
+  for(var i=0;i<n;i++){
+    if(PT.length>200) break;
+    var a=rnd(0,6.283),s=rnd(sp*0.3,sp);
+    PT.push({x:x,y:y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:rnd(0.3,0.7),max:0.7,color:c,size:rnd(2,4)});
+  }
+}
+function floatTxt(x,y,txt,c,size){
+  if(PT.length>210) return;
+  PT.push({x:x,y:y,vx:rnd(-6,6),vy:-30,life:1.1,max:1.1,color:c,size:size||13,text:txt});
+}
+function updateParts(dt){
+  for(var i=PT.length-1;i>=0;i--){
+    var p=PT[i];
+    p.life-=dt;
+    if(p.life<=0){ PT.splice(i,1); continue; }
+    p.x+=p.vx*dt; p.y+=p.vy*dt;
+    if(!p.text){ p.vx*=0.95; p.vy*=0.95; }
+  }
+}
+function updateProj(dt){
+  for(var i=PJ.length-1;i>=0;i--){
+    var p=PJ[i];
+    p.life-=dt;
+    if(p.life<=0){ PJ.splice(i,1); continue; }
+    var tg=p.target;
+    if(tg&&!tg.dead){
+      var dx=tg.x-p.x,dy=tg.y-p.y;
+      var d=Math.sqrt(dx*dx+dy*dy);
+      if(d<12+tg.r){
+        hurt(tg,p.dmg,'phys');
+        burst(tg.x,tg.y,'#00d5ff',3,55);
+        PJ.splice(i,1);
+        continue;
+      }
+      if(d>0.001){ p.vx=dx/d*540; p.vy=dy/d*540; }
+    }
+    p.x+=p.vx*dt; p.y+=p.vy*dt;
+  }
+}
+function smoke(dt){
+  if(!lv('workshop')) return;
+  smokeT-=dt;
+  if(smokeT<=0&&PT.length<180){
+    smokeT=0.35;
+    var p=SLOTS.workshop;
+    PT.push({x:p.x+16+rnd(-2,2),y:p.y-32,vx:rnd(-6,6),vy:rnd(-26,-18),life:2.2,max:2.2,color:'rgba(150,163,192,.45)',size:rnd(3,5)});
+  }
+}
+
+/* ---------- الأرضية حسب الموقع (ميزة ١) ---------- */
+function buildTerrain(){
+  terrain=document.createElement('canvas');
+  terrain.width=WORLD; terrain.height=WORLD;
+  var c=terrain.getContext('2d');
+  var R=seeded(1337),i,x,y,r;
+  var terr=S.site?S.site.terrain:'grass';
+  var base='#0c1622';
+  if(terr==='rock') base='#141822';
+  else if(terr==='forest') base='#0a1a12';
+  else if(terr==='sand') base='#1e1a10';
+  else if(terr==='water') base='#0a1626';
+  else if(terr==='grass') base='#0e1a14';
+  var grd=c.createLinearGradient(0,0,WORLD,WORLD);
+  grd.addColorStop(0,base);
+  grd.addColorStop(0.5,'#0a121d');
+  grd.addColorStop(1,base);
+  c.fillStyle=grd; c.fillRect(0,0,WORLD,WORLD);
+  var tint=S.site?S.site.color:'#00ff9c';
+  for(i=0;i<280;i++){
+    x=R()*WORLD; y=R()*WORLD; r=6+R()*26;
+    c.fillStyle=tint+'18';
+    c.beginPath(); c.arc(x,y,r,0,6.283); c.fill();
+  }
+  if(terr==='forest'){
+    for(i=0;i<70;i++){
+      x=R()*WORLD; y=R()*WORLD;
+      if(x>WR.x1-60&&x<WR.x2+60&&y>WR.y1-60&&y<WR.y2+60) continue;
+      r=7+R()*9;
+      c.fillStyle='#12301c'; c.beginPath(); c.arc(x,y,r,0,6.283); c.fill();
+      c.fillStyle='#1e4a2a'; c.beginPath(); c.arc(x-r*0.25,y-r*0.25,r*0.6,0,6.283); c.fill();
+    }
+  }else if(terr==='rock'){
+    for(i=0;i<50;i++){
+      x=R()*WORLD; y=R()*WORLD;
+      if(x>WR.x1-50&&x<WR.x2+50&&y>WR.y1-50&&y<WR.y2+50) continue;
+      c.fillStyle='rgba(142,163,192,.3)';
+      c.beginPath();
+      c.moveTo(x,y); c.lineTo(x+14,y+6); c.lineTo(x+8,y+18); c.lineTo(x-4,y+12);
+      c.closePath(); c.fill();
+    }
+  }else if(terr==='sand'){
+    for(i=0;i<40;i++){
+      x=R()*WORLD; y=R()*WORLD;
+      if(x>WR.x1-50&&x<WR.x2+50&&y>WR.y1-50&&y<WR.y2+50) continue;
+      c.strokeStyle='rgba(196,162,74,.25)'; c.lineWidth=2;
+      c.beginPath(); c.arc(x,y,8+R()*10,0.3,2.8); c.stroke();
+    }
+  }
+  if(terr==='water'){
+    c.strokeStyle='#0d2438'; c.lineWidth=52; c.lineCap='round';
+    c.beginPath();
+    for(y=-20;y<=WORLD+20;y+=20){
+      x=95+Math.sin(y/90)*18;
+      if(y===-20)c.moveTo(x,y); else c.lineTo(x,y);
+    }
+    c.stroke();
+    c.strokeStyle='rgba(0,213,255,.22)'; c.lineWidth=3;
+    c.beginPath();
+    for(y=-20;y<=WORLD+20;y+=20){
+      x=85+Math.sin(y/90)*18;
+      if(y===-20)c.moveTo(x,y); else c.lineTo(x,y);
+    }
+    c.stroke();
+  }
+  c.strokeStyle='rgba(160,118,74,.13)'; c.lineWidth=27;
+  var targets=[],k;
+  for(k in SLOTS) targets.push(SLOTS[k]);
+  for(k in GATES) targets.push(GATES[k]);
+  for(i=0;i<TUR.length;i++) targets.push(TUR[i]);
+  for(i=0;i<targets.length;i++){
+    c.beginPath(); c.moveTo(600,600); c.lineTo(targets[i].x,targets[i].y); c.stroke();
+  }
+  c.fillStyle='rgba(120,90,60,.10)';
+  c.fillRect(WR.x1,WR.y1,WR.x2-WR.x1,WR.y2-WR.y1);
+}
+
+/* ---------- رسم السور ---------- */
 function drawWall(){
   var l=lv('wall');
   var x1=WR.x1,y1=WR.y1,x2=WR.x2,y2=WR.y2;
-  var gap=38, th=14, i;
+  var gap=38,th=14,i;
   var ratio=clamp(S.wallHP/wallMax(),0,1);
   if(!l){
     ctx.strokeStyle='rgba(142,163,192,.22)';
@@ -1762,20 +2370,17 @@ function drawWall(){
   }
   chip(600,y1-26,l);
 }
+
+/* ---------- رسم البوابات ---------- */
 function drawGates(t){
   for(var k in GATES){
-    var g=GATES[k], hz=(g.dy!==0);
+    var g=GATES[k],hz=(g.dy!==0);
     var st=B?B.gh[k]:null;
     var broken=st&&st.broken;
     var i;
     ctx.fillStyle=broken?'#3a2418':'#6a4a2a';
-    if(hz){
-      ctx.fillRect(g.x-40,g.y-11,12,22);
-      ctx.fillRect(g.x+28,g.y-11,12,22);
-    }else{
-      ctx.fillRect(g.x-11,g.y-40,22,12);
-      ctx.fillRect(g.x-11,g.y+28,22,12);
-    }
+    if(hz){ ctx.fillRect(g.x-40,g.y-11,12,22); ctx.fillRect(g.x+28,g.y-11,12,22); }
+    else{ ctx.fillRect(g.x-11,g.y-40,22,12); ctx.fillRect(g.x-11,g.y+28,22,12); }
     if(lv('wall')>0&&!broken){
       ctx.fillStyle='#8a6a3a';
       if(hz) ctx.fillRect(g.x-28,g.y-6,56,12);
@@ -1797,7 +2402,7 @@ function drawGates(t){
     }
     if(st&&B.gates.indexOf(k)>=0){
       var p=st.max>0?st.hp/st.max:0;
-      var bx=g.x+g.dx*46, by=g.y+g.dy*46;
+      var bx=g.x+g.dx*46,by=g.y+g.dy*46;
       hbar(bx,by-7,86,8,p,
         p>0.5?'#8ea3c0':(p>0.25?'#ffb020':'#ff2e55'),
         p>0.5?'#3d7bff':(p>0.25?'#ff7a2f':'#b31237'));
@@ -1816,6 +2421,8 @@ function drawGates(t){
     ctx.beginPath(); ctx.arc(g.x-g.dx*4+(hz?46:0),g.y-g.dy*4+(hz?0:46),5*fl,0,6.283); ctx.fill();
   }
 }
+
+/* ---------- رسم الأبراج ---------- */
 function towerBody(x,y,state,t,idx){
   var active=(state==='on');
   var ghosted=(state==='ghost');
@@ -1853,8 +2460,9 @@ function towerBody(x,y,state,t,idx){
     ctx.lineWidth=2;
     ctx.beginPath(); ctx.arc(x,y,27,0,6.283); ctx.stroke();
     if(B&&B.phase==='assault'&&!B.deter){
-      ctx.strokeStyle='rgba(0,213,255,.07)'; ctx.lineWidth=1;
-      ctx.beginPath(); ctx.arc(x,y,TRANGE,0,6.283); ctx.stroke();
+      var tr=turRange();
+      ctx.strokeStyle='rgba(0,213,255,.06)'; ctx.lineWidth=1;
+      ctx.beginPath(); ctx.arc(x,y,tr,0,6.283); ctx.stroke();
     }
   }else{
     ctx.fillStyle='rgba(142,163,192,.5)';
@@ -1864,7 +2472,7 @@ function towerBody(x,y,state,t,idx){
   }
 }
 function drawTurrets(t){
-  var l=lv('tower'), act=turCount();
+  var l=lv('tower'),act=turCount();
   for(var i=0;i<4;i++){
     var p=TUR[i];
     var st=(l===0)?'ghost':(i<act?'on':'off');
@@ -1887,8 +2495,10 @@ function drawTurrets(t){
   ctx.textAlign='center'; ctx.textBaseline='middle';
   ctx.fillText('برج · '+act+'/4',head.x,head.y+44);
 }
+
+/* ---------- رسم المباني ---------- */
 function ghost(id){
-  var t=BUILD[id], p=SLOTS[id], u=unlocked(id);
+  var t=BUILD[id],p=SLOTS[id],u=unlocked(id);
   ctx.strokeStyle=u?'rgba(0,213,255,.35)':'rgba(142,163,192,.25)';
   ctx.lineWidth=2; ctx.setLineDash([7,6]);
   rr(p.x-32,p.y-32,64,64,10); ctx.stroke();
@@ -1904,9 +2514,9 @@ function ghost(id){
   ctx.fillText(t.name,p.x,p.y+48);
 }
 function drawBuilding(id,t){
-  var b=S.buildings[id], p=SLOTS[id];
+  var b=S.buildings[id],p=SLOTS[id];
   if(!b.level){ ghost(id); return; }
-  var x=p.x, y=p.y, act=b.workers>0, i, r, a;
+  var x=p.x,y=p.y,act=b.workers>0,i,r,a;
   var raided=false;
   if(B){
     for(i=0;i<B.enemies.length;i++){
@@ -1916,7 +2526,6 @@ function drawBuilding(id,t){
   }
   ctx.fillStyle='rgba(0,0,0,.32)';
   ctx.beginPath(); ctx.ellipse(x,y+26,34,9,0,0,6.283); ctx.fill();
-
   if(id==='lumbermill'){
     ctx.fillStyle='#7a5230'; ctx.fillRect(x-28,y-10,56,34);
     ctx.fillStyle='#5a3a20';
@@ -1924,8 +2533,6 @@ function drawBuilding(id,t){
     ctx.fillStyle='#3a2a18'; ctx.fillRect(x-7,y+4,14,20);
     ctx.fillStyle='#8a6a3a';
     for(i=0;i<3;i++){ ctx.beginPath(); ctx.arc(x-38+i*8,y+20,6,0,6.283); ctx.fill(); }
-    ctx.strokeStyle='#5a3a20'; ctx.lineWidth=1;
-    for(i=0;i<3;i++){ ctx.beginPath(); ctx.arc(x-38+i*8,y+20,3,0,6.283); ctx.stroke(); }
     if(act){
       a=t*6;
       ctx.strokeStyle='#c8d2e0'; ctx.lineWidth=2;
@@ -1959,7 +2566,7 @@ function drawBuilding(id,t){
     ctx.strokeStyle='#d8c25a'; ctx.lineWidth=2;
     for(r=0;r<4;r++){
       for(i=0;i<6;i++){
-        var wx=x-26+i*10.5, wy=y-16+r*12;
+        var wx=x-26+i*10.5,wy=y-16+r*12;
         var sw=Math.sin(t*2+i+r)*2.5;
         ctx.beginPath(); ctx.moveTo(wx,wy); ctx.lineTo(wx+sw,wy-8); ctx.stroke();
       }
@@ -1970,11 +2577,6 @@ function drawBuilding(id,t){
     ctx.strokeStyle='#5a3a20'; ctx.lineWidth=2; ctx.strokeRect(x-sz/2,y-sz/2+6,sz,sz-8);
     ctx.beginPath(); ctx.moveTo(x-sz/2,y+2); ctx.lineTo(x+sz/2,y+2); ctx.stroke();
     ctx.beginPath(); ctx.moveTo(x,y-sz/2+6); ctx.lineTo(x,y+sz/2-2); ctx.stroke();
-    ctx.fillStyle='#4a4a4a';
-    ctx.fillRect(x-sz/2,y-sz/2+6,5,5);
-    ctx.fillRect(x+sz/2-5,y-sz/2+6,5,5);
-    ctx.fillRect(x-sz/2,y+sz/2-7,5,5);
-    ctx.fillRect(x+sz/2-5,y+sz/2-7,5,5);
   }else if(id==='barracks'){
     ctx.fillStyle='#3f5a3f';
     ctx.beginPath(); ctx.moveTo(x-32,y+24); ctx.lineTo(x,y-26); ctx.lineTo(x+32,y+24); ctx.closePath(); ctx.fill();
@@ -1992,9 +2594,6 @@ function drawBuilding(id,t){
       ctx.fillRect(x-30+i*12,y-18,12,14);
     }
     ctx.fillStyle='#8a6a3a'; ctx.fillRect(x-30,y-4,60,4);
-    ctx.fillStyle='#00ff9c'; ctx.beginPath(); ctx.arc(x-12,y+10,4,0,6.283); ctx.fill();
-    ctx.fillStyle='#c4844a'; ctx.beginPath(); ctx.arc(x,y+10,4,0,6.283); ctx.fill();
-    ctx.fillStyle='#8ea3c0'; ctx.beginPath(); ctx.arc(x+12,y+10,4,0,6.283); ctx.fill();
   }else if(id==='hospital'){
     ctx.globalAlpha=S.wounded>0?(0.85+0.15*Math.sin(t*3)):1;
     ctx.fillStyle='#dfe8f2'; ctx.fillRect(x-26,y-16,52,40);
@@ -2015,8 +2614,16 @@ function drawBuilding(id,t){
       ctx.lineTo(x-8+Math.cos(a+i*1.047)*11,y+8+Math.sin(a+i*1.047)*11);
       ctx.stroke();
     }
+    /* ميزة ٧: رسم أسلحة الحصار المبنية بجانب الورشة */
+    for(i=0;i<S.siegeWeapons.length;i++){
+      var sw=S.siegeWeapons[i];
+      var ox=x-40-i*18,oy=y+18;
+      ctx.fillStyle='#6a4a2a';
+      ctx.fillRect(ox-8,oy-6,16,12);
+      ctx.strokeStyle='#8a6a3a'; ctx.lineWidth=2;
+      ctx.beginPath(); ctx.moveTo(ox-6,oy+6); ctx.lineTo(ox+6,oy-8); ctx.stroke();
+    }
   }
-
   if((id==='hospital'||id==='workshop')&&b.workers>0){
     ctx.fillStyle='#00d5ff';
     ctx.beginPath(); ctx.arc(x+30,y+20,4+Math.sin(t*3),0,6.283); ctx.fill();
@@ -2046,19 +2653,15 @@ function drawPaths(){
 function drawWorkers(t){
   var i;
   for(i=0;i<WK.length;i++){
-    var w=WK[i], bob=Math.sin(t*8+w.bob)*0.8;
+    var w=WK[i],bob=Math.sin(t*8+w.bob)*0.8;
     ctx.fillStyle='#39c2ff';
     ctx.beginPath(); ctx.arc(w.x,w.y+bob,5,0,6.283); ctx.fill();
-    ctx.strokeStyle='rgba(0,213,255,.6)'; ctx.lineWidth=1;
-    ctx.beginPath(); ctx.arc(w.x,w.y+bob,5,0,6.283); ctx.stroke();
     if(w.carry){ ctx.fillStyle=RC[w.res]; ctx.fillRect(w.x-3,w.y-11+bob,6,6); }
   }
   for(i=0;i<RW.length;i++){
-    var r=RW[i], rb=Math.sin(t*7+r.bob)*0.8;
+    var r=RW[i],rb=Math.sin(t*7+r.bob)*0.8;
     ctx.fillStyle='#ffb020';
     ctx.beginPath(); ctx.arc(r.x,r.y+rb,5,0,6.283); ctx.fill();
-    ctx.strokeStyle='rgba(255,176,32,.7)'; ctx.lineWidth=1;
-    ctx.beginPath(); ctx.arc(r.x,r.y+rb,5,0,6.283); ctx.stroke();
     if(r.carry){
       ctx.fillStyle=RC.wood; ctx.fillRect(r.x-6,r.y-12+rb,5,5);
       ctx.fillStyle=RC.iron; ctx.fillRect(r.x+1,r.y-12+rb,5,5);
@@ -2068,7 +2671,7 @@ function drawWorkers(t){
 function drawSoldiers(t){
   var i;
   for(i=0;i<SD.length;i++){
-    var u=SD[i], bob=Math.sin(t*7+u.bob)*0.7;
+    var u=SD[i],bob=Math.sin(t*7+u.bob)*0.7;
     ctx.globalAlpha=Math.max(0,u.fade);
     if(u.sid===selSid){
       ctx.strokeStyle='#ffd24a'; ctx.lineWidth=2;
@@ -2078,15 +2681,18 @@ function drawSoldiers(t){
     }
     ctx.fillStyle='#00ff9c';
     ctx.beginPath(); ctx.arc(u.x,u.y+bob,6,0,6.283); ctx.fill();
-    ctx.strokeStyle='rgba(0,255,156,.55)'; ctx.lineWidth=1;
-    ctx.beginPath(); ctx.arc(u.x,u.y+bob,6,0,6.283); ctx.stroke();
     ctx.strokeStyle='#c8d2e0'; ctx.lineWidth=2;
     ctx.beginPath(); ctx.moveTo(u.x+4,u.y-2+bob); ctx.lineTo(u.x+9,u.y-8+bob); ctx.stroke();
+    /* ميزة ٦: تشكيل السلحفاة يظهر درعاً حول الجنود */
+    if(S.formation==='turtle'&&B&&B.phase!=='done'){
+      ctx.strokeStyle='rgba(142,163,192,.5)'; ctx.lineWidth=2;
+      ctx.beginPath(); ctx.arc(u.x,u.y+bob,9,0,6.283); ctx.stroke();
+    }
     if(u.hp<u.maxHp) hbar(u.x,u.y-14,20,4,u.hp/u.maxHp,'#00ff9c','#00d5ff');
     ctx.globalAlpha=1;
   }
   if(S.wounded>0){
-    var h=SLOTS.hospital, n=Math.min(6,S.wounded);
+    var h=SLOTS.hospital,n=Math.min(6,S.wounded);
     for(i=0;i<n;i++){
       ctx.fillStyle='rgba(255,176,32,'+(0.5+0.4*Math.sin(t*2+i)).toFixed(2)+')';
       ctx.beginPath(); ctx.arc(h.x-20+(i%3)*14,h.y+34+Math.floor(i/3)*12,4,0,6.283); ctx.fill();
@@ -2131,6 +2737,10 @@ function drawEnemies(t){
       ctx.font='10px serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
       ctx.fillText('👀',e.x,e.y-r-11);
     }
+    if(e.tunnel){
+      ctx.strokeStyle='rgba(142,163,192,.7)'; ctx.lineWidth=2;
+      ctx.beginPath(); ctx.arc(e.x,e.y,r+5,0,6.283); ctx.stroke();
+    }
     if(e.type==='sapper'){
       ctx.strokeStyle='rgba(234,243,255,.75)'; ctx.lineWidth=2;
       ctx.beginPath(); ctx.arc(e.x,e.y,r+3,-1.1,1.1); ctx.stroke();
@@ -2171,7 +2781,7 @@ function drawEnemies(t){
 function drawEffects(){
   var i;
   for(i=0;i<LOB.length;i++){
-    var L=LOB[i], p=clamp(L.t/L.dur,0,1);
+    var L=LOB[i],p=clamp(L.t/L.dur,0,1);
     var x=L.x+(L.tx-L.x)*p;
     var y=L.y+(L.ty-L.y)*p-Math.sin(p*Math.PI)*90;
     ctx.strokeStyle='rgba(255,176,32,.3)'; ctx.lineWidth=2;
@@ -2184,18 +2794,19 @@ function drawEffects(){
   }
   for(i=0;i<PJ.length;i++){
     var pr=PJ[i];
-    ctx.strokeStyle='#00d5ff'; ctx.lineWidth=2;
+    ctx.strokeStyle=pr.siege?'#ffb020':'#00d5ff';
+    ctx.lineWidth=pr.siege?3:2;
     ctx.beginPath();
     ctx.moveTo(pr.x,pr.y);
     ctx.lineTo(pr.x-pr.vx*0.025,pr.y-pr.vy*0.025);
     ctx.stroke();
-    ctx.fillStyle='#aaddff';
-    ctx.beginPath(); ctx.arc(pr.x,pr.y,2,0,6.283); ctx.fill();
+    ctx.fillStyle=pr.siege?'#ffd24a':'#aaddff';
+    ctx.beginPath(); ctx.arc(pr.x,pr.y,pr.siege?3:2,0,6.283); ctx.fill();
   }
 }
 function drawParts(){
   for(var i=0;i<PT.length;i++){
-    var p=PT[i], a=clamp(p.life/p.max,0,1);
+    var p=PT[i],a=clamp(p.life/p.max,0,1);
     ctx.globalAlpha=a;
     if(p.text){
       ctx.font='bold '+p.size+'px Courier New';
@@ -2212,13 +2823,13 @@ function drawParts(){
   }
 }
 function drawAlert(t){
-  var keys=null, c='#ffb020';
+  var keys=null,c='#ffb020';
   if(B&&B.phase==='assault'){ keys=B.gates; c=B.deter?'#00ff9c':'#ff2e55'; }
   else if(S.wave.remaining<15000){ keys=S.wave.gates; c=willDeter()?'#00ff9c':'#ffb020'; }
   if(!keys) return;
   for(var i=0;i<keys.length;i++){
     var g=GATES[keys[i]];
-    var px=g.x+g.dx*92, py=g.y+g.dy*92;
+    var px=g.x+g.dx*92,py=g.y+g.dy*92;
     var s=1+0.25*Math.sin(t*6);
     ctx.save();
     ctx.translate(px,py); ctx.scale(s,s);
@@ -2276,18 +2887,61 @@ function drawSelection(t){
 function drawBossBar(){
   if(!B||!B.boss||B.boss.dead) return;
   var e=B.boss;
-  var w=Math.min(420,vw-40), x=(vw-w)/2, y=12;
+  var w=Math.min(420,vw-40),x=(vw-w)/2,y=12;
   ctx.fillStyle='rgba(5,9,20,.9)';
   rr(x-8,y-6,w+16,34,10); ctx.fill();
   ctx.strokeStyle='rgba(155,92,255,.7)'; ctx.lineWidth=1.5;
   rr(x-8,y-6,w+16,34,10); ctx.stroke();
+  var label=B.king?(B.king.icon+' '+B.king.name):('👑 '+e.T.n);
   ctx.fillStyle='#c9a6ff';
   ctx.font='bold 11px Courier New';
   ctx.textAlign='center'; ctx.textBaseline='middle';
-  ctx.fillText('👑 '+e.T.n+' — '+Math.ceil(e.hp),vw/2,y+4);
+  ctx.fillText(label+' — '+Math.ceil(e.hp),vw/2,y+4);
   hbar(vw/2,y+12,w,9,e.hp/e.maxHp,'#9b5cff','#ff2e55');
 }
+/* ---------- ميزة ٨: تأثير الطقس المرئي ---------- */
+function drawWeather(t){
+  var w=currentWeather();
+  if(w.id==='clear') return;
+  ctx.save();
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  if(w.id==='fog'){
+    ctx.fillStyle='rgba(142,163,192,.10)';
+    ctx.fillRect(0,0,vw,vh);
+    for(var i=0;i<3;i++){
+      var fy=(t*8+i*vh/3)%vh;
+      ctx.fillStyle='rgba(142,163,192,.06)';
+      ctx.fillRect(0,fy-40,vw,80);
+    }
+  }else if(w.id==='rain'){
+    ctx.strokeStyle='rgba(0,213,255,.18)';
+    ctx.lineWidth=1;
+    for(var r=0;r<40;r++){
+      var rx=((r*97+t*120)%(vw+20))-10;
+      var ry=((r*53+t*340)%(vh+20))-10;
+      ctx.beginPath(); ctx.moveTo(rx,ry); ctx.lineTo(rx-3,ry+12); ctx.stroke();
+    }
+  }else if(w.id==='snow'){
+    ctx.fillStyle='rgba(234,243,255,.5)';
+    for(var s=0;s<35;s++){
+      var sx=((s*83+t*24)%(vw+20))-10;
+      var sy=((s*61+t*48)%(vh+20))-10;
+      ctx.beginPath(); ctx.arc(sx+Math.sin(t*2+s)*6,sy,2,0,6.283); ctx.fill();
+    }
+  }else if(w.id==='sandstorm'){
+    ctx.fillStyle='rgba(196,162,74,.12)';
+    ctx.fillRect(0,0,vw,vh);
+    for(var d=0;d<25;d++){
+      var dx=((d*131+t*260)%(vw+40))-20;
+      var dy=((d*71)%vh);
+      ctx.fillStyle='rgba(196,162,74,.15)';
+      ctx.beginPath(); ctx.ellipse(dx,dy,14,4,0,0,6.283); ctx.fill();
+    }
+  }
+  ctx.restore();
+}
 
+/* ---------- الحلقة الرئيسية ---------- */
 function frame(ts){
   if(!rafOn) return;
   requestAnimationFrame(frame);
@@ -2339,6 +2993,7 @@ function frame(ts){
     drawOrders(t);
     drawSelection(t);
     ctx.restore();
+    drawWeather(t);
     drawBossBar();
   }catch(err){
     rafOn=false;
@@ -2352,7 +3007,7 @@ function tick(){
     var dt=Math.min(5,(n-S.lastTick)/1000||0)*S.set.speed;
     S.lastTick=n;
     for(var id in BUILD){
-      var t=BUILD[id], b=S.buildings[id];
+      var t=BUILD[id],b=S.buildings[id];
       if(!t.prod||!b||!b.level) continue;
       S.resources[t.prod]=Math.min(S.max[t.prod],S.resources[t.prod]+prod(id)*dt);
     }
@@ -2368,6 +3023,8 @@ function tick(){
     }else{
       S.healPool=0;
     }
+    /* المعنويات تتعافى ببطء خارج المعركة (ميزة ١٠) */
+    if(!B&&S.morale<100) S.morale=clamp(S.morale+dt*0.5,0,100);
     if(!B){
       S.wave.remaining-=dt*1000;
       if(S.wave.remaining<=0) startBattle();
@@ -2380,6 +3037,7 @@ function tick(){
   }catch(err){ report('tick',err); }
 }
 
+/* ---------- الواجهة العلوية ---------- */
 function buildTop(){
   var h='';
   var list=['wood','iron','food'];
@@ -2387,11 +3045,13 @@ function buildTop(){
     var r=list[i];
     h+='<div class="res '+r+'" id="r-'+r+'"><span class="ic">'+RM[r].i+'</span><div><div class="nm">'+RM[r].n+'</div><div class="vl" id="v-'+r+'">0</div></div></div>';
   }
-  h+='<div class="res gold"><span class="ic">💰</span><div><div class="nm">ذهب</div><div class="vl" id="v-gold">0</div></div></div>';
+  h+='<div class="res gold" id="r-gold"><span class="ic">💰</span><div><div class="nm">ذهب</div><div class="vl" id="v-gold">0</div></div></div>';
   h+='<div class="res tower click" id="r-tower" data-act="bld" data-id="tower"><span class="ic">🗼</span><div><div class="nm">أبراج</div><div class="vl" id="v-tower">0/4</div></div></div>';
   h+='<div class="res wall click" id="r-wall" data-act="bld" data-id="wall"><span class="ic">🧱</span><div><div class="nm">السور</div><div class="vl" id="v-wall">0</div></div></div>';
+  h+='<div class="res morale" id="r-morale"><span class="ic">🔥</span><div><div class="nm">معنويات</div><div class="vl" id="v-morale">100</div></div></div>';
   h+='<div class="res sold click" data-act="panel" data-p="pSoldiers"><span class="ic">🛡️</span><div><div class="nm">جنود</div><div class="vl" id="v-sold">0</div></div></div>';
   h+='<div class="res workers click" data-act="workers"><span class="ic">👷</span><div><div class="nm">عمال</div><div class="vl" id="v-work">0</div></div></div>';
+  h+='<div class="res click" data-act="panel" data-p="pChronicle"><span class="ic">📜</span><div><div class="nm">الملاحم</div><div class="vl" id="v-chron">0</div></div></div>';
   h+='<div class="spacer"></div>';
   h+='<button class="sys" id="btnSpeed" data-act="speed" title="سرعة الاقتصاد">1×</button>';
   h+='<button class="sys" id="btnSound" data-act="sound" title="الصوت">🔊</button>';
@@ -2400,7 +3060,7 @@ function buildTop(){
   syncSys();
 }
 function syncSys(){
-  var sp=el('btnSpeed'), so=el('btnSound');
+  var sp=el('btnSpeed'),so=el('btnSound');
   if(sp){
     sp.textContent=S.set.speed+'×';
     sp.classList.toggle('fast',S.set.speed===2);
@@ -2413,7 +3073,7 @@ function syncSys(){
 function buildRosterStrip(){
   var h='';
   for(var i=0;i<S.roster.length;i++){
-    var r=S.roster[i], u=unitById(r.id);
+    var r=S.roster[i],u=unitById(r.id);
     var hp=u?clamp(u.hp/u.maxHp,0,1):1;
     var m=u?MODES[u.mode]:'—';
     h+='<button class="chip'+(r.id===selSid?' sel':'')+'" data-act="select-sold" data-id="'+r.id+'">';
@@ -2439,6 +3099,11 @@ function battleHUD(){
   var gF=el('gateF');
   gF.style.width=(wr*100)+'%';
   gF.style.background=wr>0.5?'linear-gradient(90deg,#8ea3c0,#3d7bff)':(wr>0.25?'linear-gradient(90deg,#ffb020,#ff7a2f)':'linear-gradient(90deg,#ff2e55,#b31237)');
+  var mr=clamp(S.morale/100,0,1);
+  el('moraleT').textContent=Math.round(S.morale);
+  var mF=el('moraleF');
+  mF.style.width=(mr*100)+'%';
+  mF.style.background=mr>0.6?'linear-gradient(90deg,#ffb020,#ffd24a)':(mr>0.3?'linear-gradient(90deg,#ff7a2f,#ffb020)':'linear-gradient(90deg,#ff2e55,#ff7a2f)');
   el('killT').textContent='☠️ '+B.kills+'/'+B.total;
   var alive=0;
   for(var j=0;j<B.enemies.length;j++){ if(!B.enemies[j].dead) alive++; }
@@ -2449,6 +3114,7 @@ function battleHUD(){
     obj='🛡️ انسحاب أمام دفاعك — لن يمسّوا السور';
   }else{
     obj=P.win;
+    if(B.king) obj=B.king.icon+' '+B.king.name+' — '+obj;
     if(B.pattern==='siege') obj+=' — متبقي '+fmtT((B.dur-B.elapsed)*1000);
     else if(B.pattern==='boss') obj+=B.bossDead?' — سقط!':' — ركّز عليه';
     else obj+=' — المتبقون '+alive;
@@ -2481,14 +3147,27 @@ function updateHUD(){
   var tb=el('r-tower'); if(tb) tb.classList.toggle('none',turCount()===0);
   var wl=el('v-wall'); if(wl) wl.textContent=Math.round(S.wallHP)+'/'+wallMax();
   var wb2=el('r-wall'); if(wb2) wb2.classList.toggle('hurt',S.wallHP/wallMax()<0.6);
+  var mv=el('v-morale'); if(mv) mv.textContent=Math.round(S.morale);
+  var chv=el('v-chron'); if(chv) chv.textContent=fmtN(S.chronicle.length);
+
+  /* شريط الموسم والطقس والمعنويات */
+  var sn=currentSeason();
+  el('seasonName').textContent=sn.icon+' '+sn.name;
+  el('seasonWave').textContent=seasonWaveInCycle();
+  el('seasonEnd').textContent='4';
+  el('seasonEff').textContent=sn.eff;
+  var wn=currentWeather();
+  el('weatherEff').textContent=wn.icon+' '+wn.name+' — '+wn.eff;
+  el('moraleEff').textContent='🔥 معنويات '+Math.round(S.morale);
 
   var P=PAT[S.wave.pattern]||PAT.normal;
-  var def=defRating(), pow=S.wave.power;
+  var def=defRating(),pow=S.wave.power;
   var deter=willDeter();
+  var king=kingForWave(S.wave.number);
   var safe=deter||def>=pow*0.5;
   el('wNum').textContent='#'+S.wave.number;
   var pt=el('wPtn');
-  pt.textContent=P.n;
+  pt.textContent=king?(king.icon+' '+king.name):P.n;
   pt.className='ptn '+P.cls;
   el('wPow').textContent=fmtN(pow);
   var d=el('wDef');
@@ -2498,11 +3177,12 @@ function updateHUD(){
   var ob=el('wObj');
   if(!B){
     if(deter){ ob.textContent='🛡️ سينسحبون قبل الاقتحام'; ob.className='deter'; }
+    else if(king){ ob.textContent='👑 ملك يقود الهجوم — لا يُردَع'; ob.className=''; }
     else if(S.wave.pattern==='boss'&&noForce()){ ob.textContent='⚠️ الطاغية لا يُردَع — ابنِ دفاعاً'; ob.className=''; }
     else { ob.textContent='🎯 '+P.win; ob.className=''; }
   }else{ ob.textContent=''; ob.className=''; }
 
-  var wb=el('wavebar'), tm=el('wTimer'), fl=el('wFill'), btn=el('btnWave');
+  var wb=el('wavebar'),tm=el('wTimer'),fl=el('wFill'),btn=el('btnWave');
   if(B&&B.phase!=='done'){
     wb.classList.toggle('battle',!B.deter);
     wb.classList.toggle('deter',!!B.deter);
@@ -2542,15 +3222,14 @@ function updateHUD(){
     fl.style.width=clamp(S.wave.remaining/S.interval*100,0,100)+'%';
     btn.textContent='⚔️ الهجمة';
   }
-  battleHUD();
 }
 function syncSel(){
   var bar=el('selBar');
-  var r=recById(selSid), u=unitById(selSid);
+  var r=recById(selSid),u=unitById(selSid);
   if(!r||!u){ bar.classList.remove('on'); return; }
   bar.classList.add('on');
   el('selName').textContent='جندي #'+r.id;
-  el('selHp').textContent=Math.ceil(u.hp)+'/'+u.maxHp+' · '+MODES[u.mode];
+  el('selHp').textContent=Math.ceil(u.hp)+'/'+Math.round(u.maxHp)+' · '+MODES[u.mode];
 }
 function syncPlace(){
   cv.classList.toggle('place',!!placeMode);
@@ -2560,7 +3239,7 @@ function syncPlace(){
 }
 function cancelPlace(){ placeMode=null; syncPlace(); }
 function orderSoldier(sid,x,y){
-  var r=recById(sid), u=unitById(sid);
+  var r=recById(sid),u=unitById(sid);
   if(!r) return;
   r.home={x:x,y:y};
   if(u){
@@ -2568,7 +3247,6 @@ function orderSoldier(sid,x,y){
     if(B&&B.phase!=='done'&&!B.deter){ u.mode='hold'; u.order={x:x,y:y}; }
   }
   AU.order();
-  floatTxt(x,y-20,'#'+sid,'#00ff9c',12);
   syncSel();
 }
 function orderAll(x,y){
@@ -2591,6 +3269,7 @@ function modeAll(m){
   buildRosterStrip();
 }
 
+/* ---------- اللوحات ---------- */
 function openP(id){
   var p=el(id);
   if(!p) return;
@@ -2599,6 +3278,8 @@ function openP(id){
   if(id==='pWave') renderWave();
   if(id==='pHelp') renderHelp();
   if(id==='pSoldiers') renderSoldiers();
+  if(id==='pCity') renderCity();
+  if(id==='pChronicle') renderChronicle();
 }
 function closeP(id){
   var p=el(id);
@@ -2641,9 +3322,117 @@ function costHTML(c){
   }
   return out.join(' · ');
 }
+
+/* ---------- ميزة ٢٥: سجل الملاحم ---------- */
+function renderChronicle(){
+  var h='<div class="row"><span class="l">إجمالي الملاحم</span><span class="v g">'+S.chronicle.length+'</span></div>';
+  h+='<div class="row"><span class="l">ملوك أُسقطوا</span><span class="v vi">'+S.kingsDefeated.length+'/'+KINGS.length+'</span></div>';
+  h+='<div class="row"><span class="l">انتصارات</span><span class="v g">'+S.survived+'</span></div>';
+  h+='<div class="row"><span class="l">هزائم</span><span class="v r">'+S.lost+'</span></div>';
+  h+='<div class="sec">سجل الأحداث الكبرى</div>';
+  if(!S.chronicle.length){
+    h+='<p class="note" style="text-align:center;padding:14px">لم تُكتب ملاحم بعد. اصمد وقاتل ليُخلَّد اسمك.</p>';
+  }
+  for(var i=0;i<S.chronicle.length;i++){
+    var c=S.chronicle[i];
+    var ct=CHRONICLE_TYPES[c.type]||CHRONICLE_TYPES.victory;
+    h+='<div class="le epic">'+ct.icon+' <b style="color:var(--gold)">موجة '+c.wave+'</b> — '+c.text+'</div>';
+  }
+  el('chronBody').innerHTML=h;
+}
+
+/* ---------- لوحة المدينة: الأحياء والنبلاء والتشكيلات وحصار ---------- */
+function renderCity(){
+  var h='';
+  /* ميزة ٦: التشكيلات العسكرية */
+  h+='<div class="sec" style="color:var(--cyan)">🛡️ التشكيل العسكري الحالي</div>';
+  h+='<p class="note" style="margin-bottom:6px">اختر تشكيلاً يطبق على كل جنودك أثناء المعركة.</p>';
+  for(var f=0;f<FORMATIONS.length;f++){
+    var fm=FORMATIONS[f];
+    var on=S.formation===fm.id;
+    h+='<div class="formrow'+(on?' on':'')+'">';
+    h+='<span class="fi">'+fm.icon+'</span>';
+    h+='<div class="fn"><b>'+fm.name+'</b><span>'+fm.desc+'</span></div>';
+    h+='<button class="mini'+(on?' on':'')+'" data-act="set-formation" data-id="'+fm.id+'">'+(on?'✓ نشط':'اختيار')+'</button>';
+    h+='</div>';
+  }
+  /* ميزة ٧: أسلحة الحصار */
+  h+='<div class="sec" style="color:var(--cyan)">🏹 أسلحة الحصار</div>';
+  h+='<p class="note" style="margin-bottom:6px">ابنِ أسلحة تطلق تلقائياً على الأعداء أثناء المعركة من الورشة.</p>';
+  for(var w=0;w<SIEGE_WEAPONS.length;w++){
+    var sw=SIEGE_WEAPONS[w];
+    var owned=S.siegeWeapons.indexOf(sw.id)>=0;
+    h+='<div class="formrow'+(owned?' on':'')+'">';
+    h+='<span class="fi">'+sw.icon+'</span>';
+    h+='<div class="fn"><b>'+sw.name+'</b><span>'+sw.desc+'</span></div>';
+    if(owned){
+      h+='<span style="color:var(--green);font-size:11px">✓ مبني</span>';
+    }else{
+      var canA=afford(sw.cost);
+      h+='<button class="mini" data-act="build-siege" data-id="'+sw.id+'"'+(canA?'':' disabled')+'>بناء</button>';
+    }
+    h+='</div>';
+  }
+  /* ميزة ٩: الأنفاق */
+  h+='<div class="sec" style="color:var(--cyan)">🕳️ الأنفاق</div>';
+  if(!TUNNEL_STATE.built){
+    var canT=S.resources.gold>=100&&S.resources.iron>=60;
+    h+='<p class="note">ابنِ نفقاً سرياً. لكن احذر: قد يستخدمه العدو للتسلل إلى داخل قاعدتك في الموجات المتأخرة.</p>';
+    h+='<button class="btn ghost" data-act="build-tunnel"'+(canT?'':' disabled')+'>🕳️ حفر نفق · 💰100 · ⛏️60</button>';
+  }else{
+    h+='<p class="note" style="color:var(--amber)">⚠️ النفق محفور. '+(TUNNEL_STATE.discovered?'اكتشفه العدو — لم يعد آمناً.':'لا يزال سرياً.')+'</p>';
+  }
+  /* ميزة ١٨: الأحياء الداخلية */
+  h+='<div class="sec" style="color:var(--violet)">🏘️ أحياء القلعة</div>';
+  h+='<div class="cardgrid">';
+  for(var i=0;i<DISTRICTS.length;i++){
+    var d=DISTRICTS[i];
+    var built=S.districts[d.id];
+    h+='<div class="card2 '+(built?'on':'')+'">';
+    h+='<span class="c2i">'+d.icon+'</span>';
+    h+='<div class="c2n">'+d.name+'</div>';
+    h+='<div class="c2d">'+d.desc+'</div>';
+    if(built){
+      h+='<div class="c2d" style="color:var(--green);margin-top:6px">✓ مبني</div>';
+    }else{
+      var canD=S.resources.gold>=d.cost;
+      h+='<button class="btn gold" style="margin-top:8px;padding:8px" data-act="build-district" data-id="'+d.id+'"'+(canD?'':' disabled')+'>بناء · 💰'+d.cost+'</button>';
+    }
+    h+='</div>';
+  }
+  h+='</div>';
+  /* ميزة ٢٠: عائلات النبلاء */
+  h+='<div class="sec" style="color:var(--violet)">👑 عائلات النبلاء</div>';
+  h+='<p class="note" style="margin-bottom:6px">اكسب ودّ عائلة بالذهب لتحصل على ميزتها. لكن بعضهم قد يرفض وينقلب عليك.</p>';
+  for(var n=0;n<NOBLES.length;n++){
+    var nb=NOBLES[n];
+    var st=S.nobles[n]?S.nobles[n].state:'neutral';
+    var cls=st==='ally'?'ally':(st==='enemy'?'enemy':'');
+    h+='<div class="nobrow '+cls+'">';
+    h+='<span class="ni">'+nb.icon+'</span>';
+    h+='<div class="nn"><b>'+nb.name+'</b><span>'+nb.desc+'</span></div>';
+    if(st==='ally'){
+      h+='<span style="color:var(--green);font-size:11px">حليف ✓</span>';
+    }else if(st==='enemy'){
+      h+='<span style="color:var(--red);font-size:11px">عدو ✗</span>';
+    }else{
+      var canB=S.resources.gold>=nb.cost;
+      h+='<button class="nbtn" data-act="bribe-noble" data-id="'+nb.id+'"'+(canB?'':' disabled')+'>كسب · 💰'+nb.cost+'</button>';
+    }
+    h+='</div>';
+  }
+  /* ميزة ١٥: الحضارة الحالية */
+  h+='<div class="sec" style="color:var(--violet)">🏛️ الحضارة الحالية</div>';
+  var cvn=currentCiv();
+  h+='<div class="civrow cur"><span class="ci2">'+cvn.icon+'</span><div class="cn2"><b>'+cvn.name+'</b><span>'+cvn.desc+'</span></div></div>';
+  h+='<p class="note" style="margin-top:6px">الحضارات الأخرى تُفتح عبر الـ Prestige (ميزة ٢٦) في الجزء الرابع.</p>';
+  el('cityBody').innerHTML=h;
+}
+
+/* ---------- لوحة المبنى ---------- */
 function openBuilding(id){
   if(!BUILD[id]) return;
-  var t=BUILD[id], b=S.buildings[id];
+  var t=BUILD[id],b=S.buildings[id];
   if(!unlocked(id)&&!b.level){
     toast('يفتح بعد '+t.unlock+' مستوى إجمالي','warning');
     return;
@@ -2668,9 +3457,9 @@ function openBuilding(id){
     h+='<div class="row"><span class="l">نسبة الضرر</span><span class="v a">'+Math.round((1-ratio)*100)+'%</span></div>';
     h+='<div class="row"><span class="l">متانة كل بوابة وقت المعركة</span><span class="v c">'+Math.round(gateThird())+'</span></div>';
     if(B){
-      h+='<h3 class="sec">حالة البوابات الآن</h3>';
+      h+='<div class="sec">حالة البوابات الآن</div>';
       for(var i=0;i<GK.length;i++){
-        var k=GK[i], g=B.gh[k];
+        var k=GK[i],g=B.gh[k];
         var gr=g.max>0?clamp(g.hp/g.max,0,1):0;
         var cls=g.broken?'r':(gr>0.5?'g':'a');
         h+='<div class="row"><span class="l">'+GATES[k].name+'</span><span class="v '+cls+'">'+Math.ceil(g.hp)+'/'+Math.round(g.max)+(g.broken?' — مكسورة':'')+'</span></div>';
@@ -2685,7 +3474,7 @@ function openBuilding(id){
     h+='<div class="row"><span class="l">تكلفة الإصلاح الكامل</span><span class="v a">🌲 '+tc.wood+' · ⛏️ '+tc.iron+'</span></div>';
     h+='<div class="row"><span class="l">الوقت المقدّر</span><span class="v c">'+(S.repairCrew>0?eta+'ث':'أرسل عمالاً')+'</span></div>';
     if(miss>0&&(S.resources.wood<tc.wood||S.resources.iron<tc.iron)){
-      h+='<p class="note" style="color:var(--amber)">المخزن لا يكفي لإصلاح كل الضرر الآن — الإصلاح يتوقف حتى تتوفر الموارد.</p>';
+      h+='<p class="note" style="color:var(--amber)">المخزن لا يكفي لإصلاح كل الضرر الآن.</p>';
     }
     if(miss<=0) h+='<p class="note" style="color:var(--green)">السور سليم تماماً.</p>';
   }
@@ -2699,11 +3488,10 @@ function openBuilding(id){
     }
     h+='</div>';
     h+='<div class="row"><span class="l">ضرر الطلقة</span><span class="v g">'+turDMG().toFixed(1)+'</span></div>';
-    h+='<div class="row"><span class="l">فاصل الإطلاق</span><span class="v a">'+turCD().toFixed(2)+'ث</span></div>';
+    h+='<div class="row"><span class="l">المدى الحالي</span><span class="v c">'+Math.round(turRange())+' بكسل</span></div>';
     h+='<div class="row"><span class="l">إجمالي الضرر</span><span class="v g">'+(act?(turDMG()/turCD()*act).toFixed(0):'0')+'/ث</span></div>';
-    h+='<div class="row"><span class="l">المدى</span><span class="v c">'+TRANGE+' بكسل</span></div>';
-    if(act===0) h+='<p class="note" style="color:var(--amber);margin-top:8px">لا أبراج عاملة — ابنِ المستوى الأول لتشغيل برجين في الزاويتين الشماليتين.</p>';
-    else h+='<p class="note" style="margin-top:8px">مستوى ١ → برجان · مستوى ٥ → ثلاثة · مستوى ٩ → أربعة.</p>';
+    var wthr=currentWeather();
+    if(wthr.visMult<1) h+='<p class="note" style="color:var(--amber)">الطقس الحالي ('+wthr.icon+' '+wthr.name+') يقلل المدى.</p>';
   }
   if(t.eff==='cap'){
     h+='<div class="row"><span class="l">السعة الكلية</span><span class="v g">'+fmtN(capStore())+'</span></div>';
@@ -2713,23 +3501,23 @@ function openBuilding(id){
     var full=nSold()+S.wounded>=cap;
     var ct=!full&&afford({gold:15,food:25});
     h+='<div class="row"><span class="l">الجنود / السعة</span><span class="v g">'+nSold()+'/'+cap+'</span></div>';
-    h+='<div class="row"><span class="l">صحة الجندي</span><span class="v c">'+soldierHP()+'</span></div>';
+    h+='<div class="row"><span class="l">صحة الجندي</span><span class="v c">'+Math.round(soldierHP())+'</span></div>';
     h+='<div class="row"><span class="l">ضرر الجندي</span><span class="v c">'+soldierDMG().toFixed(1)+'</span></div>';
+    h+='<div class="row"><span class="l">التشكيل الحالي</span><span class="v vi">'+currentFormation().icon+' '+currentFormation().name+'</span></div>';
     h+='<div class="row"><span class="l">جرحى</span><span class="v a">'+S.wounded+'</span></div>';
     if(b.level){
-      h+='<button class="btn gold" data-act="train"'+(ct?'':' disabled')+'>🛡️ تدريب جندي<div class="c">'+(full?'السعة ممتلئة — طوّر الثكنة':'التكلفة: 💰 15 · 🌾 25')+'</div></button>';
+      h+='<button class="btn gold" data-act="train"'+(ct?'':' disabled')+'>🛡️ تدريب جندي</button>';
     }
     h+='<button class="btn" data-act="panel" data-p="pSoldiers">🛡️ فتح قيادة الجنود</button>';
   }
   if(t.eff==='heal'){
     h+='<div class="row"><span class="l">معدل الشفاء</span><span class="v g">'+healRate().toFixed(3)+' جندي/ث</span></div>';
-    h+='<div class="row"><span class="l">جرحى حالياً</span><span class="v a">'+S.wounded+'</span></div>';
   }
   if(t.eff==='boost'){
     h+='<div class="row"><span class="l">تعزيز الإنتاج</span><span class="v g">+'+Math.round((boost()-1)*100)+'%</span></div>';
   }
   if(t.eff==='market'&&b.level){
-    h+='<h3 class="sec" style="color:var(--gold)">🏪 التبادل (دفعات 50)</h3>';
+    h+='<div class="sec" style="color:var(--gold)">🏪 التبادل (دفعات 50)</div>';
     var rs=['wood','iron','food'];
     for(var mi=0;mi<rs.length;mi++){
       var rr2=rs[mi];
@@ -2753,19 +3541,24 @@ function openBuilding(id){
   if(maxed){
     h+='<button class="btn" disabled>⭐ أقصى مستوى</button>';
   }else{
-    h+='<button class="btn" data-act="up" data-id="'+id+'"'+(can?'':' disabled')+'>⬆️ تطوير إلى المستوى '+(b.level+1)+'<div class="c">'+costHTML(c)+'</div></button>';
+    h+='<button class="btn" data-act="up" data-id="'+id+'"'+(can?'':' disabled')+'>⬆️ تطوير إلى المستوى '+(b.level+1)+'</button>';
   }
   el('bBody').innerHTML=h;
   openP('pBuilding');
 }
+
+/* ---------- لوحة الجنود ---------- */
 function renderSoldiers(){
   var cap=soldierCap();
   var full=nSold()+S.wounded>=cap;
   var ct=!full&&afford({gold:15,food:25});
   var h='<div class="row"><span class="l">الجنود / السعة</span><span class="v g">'+nSold()+'/'+cap+'</span></div>';
   h+='<div class="row"><span class="l">جرحى</span><span class="v a">'+S.wounded+'</span></div>';
+  h+='<div class="row"><span class="l">التشكيل</span><span class="v vi">'+currentFormation().icon+' '+currentFormation().name+'</span></div>';
+  h+='<div class="row"><span class="l">المعنويات</span><span class="v '+(S.morale>60?'g':(S.morale>30?'a':'r'))+'">'+Math.round(S.morale)+'/100</span></div>';
   h+='<p class="note">ضع كل جندي في أي موقع قبل المعركة أو أثناءها. عند بدء المعركة يتوجه تلقائياً لأقرب بوابة بها أعداء، وبعدها تتحكم به كما تشاء.</p>';
-  h+='<button class="btn gold" data-act="train"'+(ct?'':' disabled')+'>🛡️ تدريب جندي<div class="c">💰 15 · 🌾 25</div></button>';
+  h+='<button class="btn gold" data-act="train"'+(ct?'':' disabled')+'>🛡️ تدريب جندي</button>';
+  h+='<button class="btn" data-act="panel" data-p="pCity">🏘️ إدارة التشكيلات والمدينة</button>';
   h+='<div class="cmds" style="margin-top:12px">';
   h+='<button class="cbtn" data-act="place-all">📍 تجميع الكل</button>';
   h+='<button class="cbtn" data-act="mode-all" data-m="engage">⚔️ اشتباك عام</button>';
@@ -2776,8 +3569,8 @@ function renderSoldiers(){
     h+='<p class="note" style="text-align:center;padding:14px">لا جنود بعد. درّب أول جندي من الثكنة.</p>';
   }
   for(var i=0;i<S.roster.length;i++){
-    var r=S.roster[i], u=unitById(r.id);
-    var hpTxt=u?(Math.ceil(u.hp)+'/'+u.maxHp):'—';
+    var r=S.roster[i],u=unitById(r.id);
+    var hpTxt=u?(Math.ceil(u.hp)+'/'+Math.round(u.maxHp)):'—';
     var m=u?MODES[u.mode]:'—';
     var hpw=u?clamp(u.hp/u.maxHp,0,1)*100:100;
     var home=r.home?'موقع محدد':'أقرب بوابة';
@@ -2795,10 +3588,12 @@ function renderSoldiers(){
   }
   el('soldBody').innerHTML=h;
 }
+
+/* ---------- لوحة العمال ---------- */
 function openWorkers(){
   curPanel='workers'; curB=null;
   el('bName').textContent='👷 إدارة العمال';
-  var free=freeW(), as=assignedW();
+  var free=freeW(),as=assignedW();
   var c=50+(S.workers-3)*25;
   var h='<div class="row"><span class="l">إجمالي العمال</span><span class="v">'+S.workers+'</span></div>';
   h+='<div class="row"><span class="l">مُعيَّنون للإنتاج</span><span class="v a">'+as+'</span></div>';
@@ -2806,10 +3601,10 @@ function openWorkers(){
   h+='<div class="row"><span class="l">متاحون</span><span class="v g">'+free+'</span></div>';
   h+='<div class="row"><span class="l">استهلاك الغذاء</span><span class="v r">'+((as+S.repairCrew)*0.05).toFixed(2)+'/ث</span></div>';
   h+='<p class="note">عمال الإصلاح يُعيَّنون من لوحة السور 🧱 ويأخذون الخشب والحديد من المخزن.</p>';
-  h+='<h3 class="sec">تعيين عمال الإنتاج</h3>';
+  h+='<div class="sec">تعيين عمال الإنتاج</div>';
   var any=false;
   for(var id in BUILD){
-    var t=BUILD[id], b=S.buildings[id];
+    var t=BUILD[id],b=S.buildings[id];
     if(!t.mw||!b.level) continue;
     any=true;
     var mh=Math.min(t.mw,b.level);
@@ -2827,45 +3622,56 @@ function openWorkers(){
 function refreshPanel(){
   var p=el('pBuilding');
   if(p.classList.contains('on')){
-    var body=el('bBody'), sc=body.scrollTop;
+    var body=el('bBody'),sc=body.scrollTop;
     if(curPanel==='workers') openWorkers();
     else if(curPanel==='building'&&curB) openBuilding(curB);
     body.scrollTop=sc;
   }
   if(el('pSoldiers').classList.contains('on')){
-    var sb=el('soldBody'), s2=sb.scrollTop;
+    var sb=el('soldBody'),s2=sb.scrollTop;
     renderSoldiers();
     sb.scrollTop=s2;
   }
+  if(el('pCity').classList.contains('on')){
+    var cb=el('cityBody'),s3=cb.scrollTop;
+    renderCity();
+    cb.scrollTop=s3;
+  }
 }
+
+/* ---------- لوحة تقرير الهجوم ---------- */
 function renderWave(){
-  var def=defRating(), pow=S.wave.power;
+  var def=defRating(),pow=S.wave.power;
   var P=PAT[S.wave.pattern]||PAT.normal;
+  var king=kingForWave(S.wave.number);
   var ratio=def/Math.max(1,pow);
   var deter=willDeter();
   var h='<div class="wp"><div class="wpb e"><div class="l">قوة الموجة</div><div class="v">'+fmtN(pow)+'</div></div>';
   h+='<div class="wpb d"><div class="l">دفاعك</div><div class="v">'+fmtN(def)+'</div></div></div>';
   var vcls,vtxt;
-  if(deter){
+  if(king){
+    vcls='l';
+    vtxt=king.icon+' <b>'+king.name+'</b> يقود هذه الموجة! «'+king.quote+'» — '+king.trait+'. الملوك لا يُردَعون.';
+  }else if(deter){
     vcls='w';
     vtxt='🛡️ سينسحبون قبل الاقتحام — لا جنود ولا أبراج لديك، وقوتك أعلى من قوتهم. مكافأة نجاة فقط.';
-  }else if(S.wave.pattern==='boss'&&noForce()){
-    vcls='l';
-    vtxt='💀 الطاغية لا يُردَع أبداً — ابنِ برجاً أو درّب جنوداً قبل هذه الموجة.';
   }else if(noForce()){
     vcls='l';
     vtxt='⚠️ لا جنود ولا أبراج، وقوتك أقل من قوتهم — سيقتحمون. طوّر السور أو ابنِ برجاً.';
   }else{
     vcls=ratio>=0.5?'w':'l';
-    vtxt=ratio>=0.85?'✅ معركة فعلية — دفاعك يرجّح الصمود':(ratio>=0.5?'⚠️ معركة فعلية — صمود محتمل، استخدم مواقع الجنود والإصلاح':'💀 معركة فعلية — دفاعك أضعف بكثير من الموجة');
+    vtxt=ratio>=0.85?'✅ معركة فعلية — دفاعك يرجّح الصمود':(ratio>=0.5?'⚠️ معركة فعلية — صمود محتمل':'💀 معركة فعلية — دفاعك أضعف بكثير من الموجة');
   }
   h+='<div class="verdict '+vcls+'">'+vtxt+'</div>';
   h+='<div class="row"><span class="l">الموجة</span><span class="v c">#'+S.wave.number+' — '+P.n+'</span></div>';
+  h+='<div class="row"><span class="l">الفصل والطقس</span><span class="v vi">'+currentSeason().icon+' '+currentSeason().name+' · '+currentWeather().icon+' '+currentWeather().name+'</span></div>';
   h+='<div class="row"><span class="l">شرط النصر</span><span class="v a">'+(deter?'انسحاب العدو':P.win)+'</span></div>';
   h+='<div class="row"><span class="l">عدد المهاجمين</span><span class="v r">'+S.wave.count+'</span></div>';
   if(P.dur&&!deter) h+='<div class="row"><span class="l">مدة الصمود</span><span class="v a">'+P.dur+'ث</span></div>';
   h+='<div class="row"><span class="l">البوابات المستهدفة</span><span class="v a">'+S.wave.gates.map(function(k){ return GATES[k].name; }).join(' + ')+'</span></div>';
   h+='<div class="row"><span class="l">متانة السور</span><span class="v '+(S.wallHP/wallMax()>0.5?'g':'r')+'">'+Math.round(S.wallHP)+'/'+wallMax()+'</span></div>';
+  h+='<div class="row"><span class="l">🔥 المعنويات</span><span class="v '+(S.morale>60?'g':(S.morale>30?'a':'r'))+'">'+Math.round(S.morale)+'/100</span></div>';
+  if(tunnelActive()) h+='<div class="row"><span class="l">🕳️ النفق</span><span class="v a">نشط — قد يتسلل منه أعداء</span></div>';
   if(B&&B.phase!=='done'){
     var alive=0;
     for(var i=0;i<B.enemies.length;i++){ if(!B.enemies[i].dead) alive++; }
@@ -2873,47 +3679,115 @@ function renderWave(){
   }else{
     h+='<div class="row"><span class="l">يبدأ بعد</span><span class="v">'+fmtT(S.wave.remaining)+'</span></div>';
   }
-  h+='<h3 class="sec">تركيبة الدفاع</h3>';
+  h+='<div class="sec">تركيبة الدفاع</div>';
   if(lv('wall')) h+='<div class="row"><span class="l">🧱 سور ('+lv('wall')+')</span><span class="v g">'+wallMax()+' متانة · +'+(15+(lv('wall')-1)*12)+' قوة</span></div>';
-  if(lv('tower')) h+='<div class="row"><span class="l">🗼 أبراج ('+turCount()+')</span><span class="v g">'+(turDMG()/turCD()*turCount()).toFixed(0)+' ضرر/ث · +'+(20+(lv('tower')-1)*15)+' قوة</span></div>';
+  if(lv('tower')) h+='<div class="row"><span class="l">🗼 أبراج ('+turCount()+')</span><span class="v g">'+(turDMG()/turCD()*turCount()).toFixed(0)+' ضرر/ث · مدى '+Math.round(turRange())+'</span></div>';
   else h+='<div class="row"><span class="l">🗼 أبراج</span><span class="v r">لا شيء</span></div>';
-  if(nSold()) h+='<div class="row"><span class="l">⚔️ جنود ('+nSold()+')</span><span class="v g">'+(soldierDMG()/0.7*nSold()).toFixed(0)+' ضرر/ث · +'+(nSold()*10)+' قوة</span></div>';
+  if(nSold()) h+='<div class="row"><span class="l">⚔️ جنود ('+nSold()+')</span><span class="v g">'+(soldierDMG()/0.7*nSold()).toFixed(0)+' ضرر/ث</span></div>';
   else h+='<div class="row"><span class="l">⚔️ جنود</span><span class="v r">لا شيء</span></div>';
-  h+='<p class="note" style="margin-top:8px">قاعدة الردع: تعمل <b>فقط</b> عندما لا يكون لديك جنود ولا أبراج، وتكون قوتك ≥ قوة الموجة. غير ذلك تُخاض معركة فعلية دائماً.</p>';
-  h+='<h3 class="sec">أنواع الأعداء</h3><div class="legend">';
+  if(S.siegeWeapons.length) h+='<div class="row"><span class="l">🏹 أسلحة حصار</span><span class="v c">'+S.siegeWeapons.length+'</span></div>';
+  h+='<p class="note" style="margin-top:8px">قاعدة الردع: تعمل <b>فقط</b> عندما لا يكون لديك جنود ولا أبراج، وتكون قوتك ≥ قوة الموجة. الملوك والطغاة لا يُردَعون أبداً.</p>';
+  h+='<div class="sec">أنواع الأعداء</div><div class="legend">';
   for(var k in ET){
     var E=ET[k];
     h+='<div class="lg"><span class="dot" style="background:'+E.c+'"></span><span><b>'+E.n+'</b><br><span style="color:var(--dim)">'+E.hp+' صحة · '+E.armor+' درع</span></span></div>';
   }
   h+='</div>';
-  if(!B) h+='<button class="btn red" data-act="ready">⚔️ ابدأ الهجوم الآن<div class="c">يطلق الموجة فوراً</div></button>';
+  h+='<div class="sec">الملوك الخمسة (ميزة ١١)</div>';
+  for(var kx=0;kx<KINGS.length;kx++){
+    var K=KINGS[kx];
+    var dead=S.kingsDefeated.indexOf(K.id)>=0;
+    h+='<div class="kingrow'+(dead?' dead':'')+'"><span class="ki">'+K.icon+'</span><div class="kn"><b>'+(dead?'✓ أُسقط — ':'الموجة '+K.wave+' — ')+K.name+'</b><span>'+K.trait+'</span></div></div>';
+  }
+  if(!B) h+='<button class="btn red" data-act="ready">⚔️ ابدأ الهجوم الآن</button>';
   el('waveBody').innerHTML=h;
 }
+
+/* ---------- لوحة المساعدة ---------- */
 function renderHelp(){
   var h='<div class="note">';
-  h+='<h3 class="sec" style="color:var(--green)">🎯 أنماط المعركة</h3>';
-  h+='<p><b>عادية وخاطفة:</b> تنتهي بإبادة كل المهاجمين. <b>حصار:</b> اصمد للمدة كاملة على ثلاث دفعات، وفيه منجنيقات خارج مدى الأبراج يجب تدميرها بالجنود. <b>طاغية:</b> تنتهي بموته فقط.</p>';
+  h+='<h3 class="sec" style="color:var(--green)">🏔️ موقعك: '+(S.site?S.site.icon+' '+S.site.name:'—')+'</h3>';
+  h+='<p>'+(S.site?S.site.desc:'لم تختر موقعاً بعد.')+'</p>';
+  h+='<h3 class="sec" style="color:var(--green)">🍂 المواسم والطقس</h3>';
+  h+='<p>كل ٤ موجات يتغيّر الفصل، وكل موجة لها طقس. الشتاء يبطئ العدو ويقلل الغذاء، الصيف يجلب العواصف الرملية التي تعمي الأبراج، الربيع يزيد الغذاء. راقب الشريط أعلى الخريطة.</p>';
+  h+='<h3 class="sec" style="color:var(--green)">⚔️ أنماط المعركة</h3>';
+  h+='<p><b>عادية وخاطفة:</b> إبادة كل المهاجمين. <b>حصار:</b> اصمد للمدة. <b>طاغية:</b> اقتله فقط. كل ١٠ موجات يظهر ملك من الملوك الخمسة.</p>';
+  h+='<h3 class="sec" style="color:var(--green)">👑 الملوك الخمسة</h3>';
+  h+='<p>الذئب الأسود، ملكة الرمال، السلطان الحديدي، أمير الرماد، والطاغية الأعظم. كل منهم يقود موجته بميزة خاصة. لا يُردَعون أبداً.</p>';
+  h+='<h3 class="sec" style="color:var(--green)">🛡️ التشكيلات العسكرية</h3>';
+  h+='<p>من لوحة المدينة اختر تشكيلاً: السلحفاة تقلل الضرر المستلم، الرماة تعزز الأبراج، الفرسان يسرّعون الحركة.</p>';
+  h+='<h3 class="sec" style="color:var(--green)">🏹 أسلحة الحصار</h3>';
+  h+='<p>ابنِ العرّادة والمنجنيق المضاد وبرج الحصار من لوحة المدينة. تطلق تلقائياً من الورشة أثناء المعركة.</p>';
   h+='<h3 class="sec" style="color:var(--green)">🛡️ قاعدة الردع</h3>';
-  h+='<p>إذا لم يكن لديك <b>جنود ولا أبراج</b> وكانت قوتك الدفاعية ≥ قوة الموجة، ينسحب العدو قبل الاقتحام: لا ضرر على السور، ومكافأة نجاة صغيرة. هذه شبكة أمان لبداية اللعبة قبل بناء الثكنة. <b>بمجرد أن تبني برجاً أو تدرّب جندياً تُخاض معركة فعلية دائماً</b> والغنائم كاملة. الطاغية لا يُردَع أبداً.</p>';
-  h+='<h3 class="sec" style="color:var(--green)">🗼 الأبراج</h3>';
-  h+='<p>أربعة أبراج في زوايا السور. المستوى الأول يشغّل برجين، والخامس ثلاثة، والتاسع أربعة. اضغط أي برج على الخريطة أو عدّاد 🗼 في الأعلى لفتح لوحته. الأبراج العاملة تتوهج سماوياً ويظهر مداها أثناء المعركة.</p>';
+  h+='<p>إذا لم يكن لديك جنود ولا أبراج وقوتك ≥ قوة الموجة، ينسحب العدو بلا ضرر ومكافأة نجاة صغيرة. بمجرد بناء برج أو تدريب جندي تبدأ معارك فعلية دائماً.</p>';
+  h+='<h3 class="sec" style="color:var(--green)">🏘️ المدينة والنبلاء</h3>';
+  h+='<p>من زر «المدينة»: ابنِ أحياء تمنح مزايا، اكسب ودّ النبلاء، اختر تشكيلك، وابنِ أسلحة الحصار. احذر: بعض النبلاء قد يرفضون وينقلبون عليك.</p>';
   h+='<h3 class="sec" style="color:var(--green)">🧱 السور والإصلاح</h3>';
-  h+='<p>للسور متانة دائمة لا تتجدد تلقائياً. وقت المعركة تُقسَم على ثلاث بوابات، كل بوابة ثلث المتانة. إذا كُسرت بوابة يدخل الأعداء منها وحدها وتبقى الأخرى محمية. أرسل عمال إصلاح من لوحة السور: يأخذون الخشب والحديد من المخزن ويستهلكونهما حسب الضرر، والإصلاح يأخذ وقتاً ويعمل أثناء المعركة أيضاً.</p>';
+  h+='<p>متانة دائمة تُقسَم على البوابات. أرسل عمال إصلاح من لوحة السور — يستهلكون خشباً وحديداً حسب الضرر.</p>';
   h+='<h3 class="sec" style="color:var(--green)">🛡️ الجنود</h3>';
-  h+='<p>اضغط جندياً ثم اضغط الأرض لنقله. عند بدء المعركة يتوجه كل جندي تلقائياً لأقرب بوابة بها أعداء، وبعدها تتحكم به كما تشاء. المتمركز يشتبك قريباً من موقعه ثم يعود. أوامر فردية وجماعية متاحة.</p>';
-  h+='<h3 class="sec" style="color:var(--green)">🗺️ الخريطة</h3>';
-  h+='<p>اسحب للتحريك، قرصة أو عجلة للتكبير. اضغط مبنى أو السور أو برج الزاوية للتطوير. اضغط عدواً 🎯 لتركيز الأبراج. قائد المجموعة 👑 قتله يبطئ أفرادها ويخفض ضررهم.</p>';
+  h+='<p>اضغط جندياً ثم الأرض لنقله. عند المعركة يتوجه لأقرب بوابة بها أعداء، ثم تتحكم به: اشتباك / تمركز / انسحاب.</p>';
+  h+='<h3 class="sec" style="color:var(--green)">🔥 المعنويات</h3>';
+  h+='<p>تنخفض عند كسر بوابة أو سقوط جندي، وترتفع عند قتل الأعداء والصدّ المثالي. المعنويات المنخفضة تضعف دفاعك وضرر جنودك.</p>';
+  h+='<h3 class="sec" style="color:var(--green)">📜 سجل الملاحم</h3>';
+  h+='<p>كل حدث عظيم (نصر، هزيمة، ملك، خيانة) يُدوَّن في سجل الملاحم. افتحه من الشريط العلوي.</p>';
   h+='<h3 class="sec" style="color:var(--green)">⚙️ عام</h3>';
-  h+='<p>زر ×2 يسرّع الاقتصاد والعدّ التنازلي فقط، لا المعركة. الصوت وإعادة البدء من الأعلى. الحفظ تلقائي كل 30 ثانية، وموارد الغياب تُحتسب حتى 8 ساعات.</p>';
+  h+='<p>زر ×2 يسرّع الاقتصاد فقط. الصوت وإعادة البدء من الأعلى. الحفظ تلقائي كل 30 ثانية.</p>';
   h+='<button class="btn ghost" data-act="reset">🗑️ مسح الحفظ والبدء من جديد</button>';
   h+='<button class="btn" data-act="close" data-p="pHelp">فهمت!</button>';
   h+='</div>';
   el('helpBody').innerHTML=h;
 }
 
+/* === نهاية الجزء الثالث (٣/٤) ===
+   الجزء الرابع يكمل: السوق، الأفعال، المدينة (بناء أحياء/نبلاء/تشكيلات/حصار/أنفاق)،
+   الإدخال، القافلة، الإقلاع، وإغلاق الملف *//* ============================================================
+   الجزء الرابع (٤/٤): السوق، الأفعال، المدينة، الخيانة،
+   القافلة، الإدخال، الإقلاع، وإغلاق الملف
+   ============================================================ */
+
+/* ---------- السوق ---------- */
+function sellGain(){
+  var g=5+lv('market');
+  if(S.districts.market) g=Math.round(g*1.2);
+  return g;
+}
+function buyCost(){
+  var c=25-2*lv('market');
+  if(S.districts.market) c=Math.round(c*0.8);
+  return Math.max(5,c);
+}
+function sell(r){
+  if(!RM[r]) return;
+  if(!lv('market')||S.resources[r]<50){ toast('تحتاج 50 من المورد','warning'); return; }
+  S.resources[r]-=50;
+  var g=sellGain();
+  S.resources.gold+=g;
+  addLog('بيع 50 '+RM[r].n+' مقابل '+g+'💰','info');
+  floatTxt(SLOTS.market.x,SLOTS.market.y-42,'+'+g+' 💰','#ffd24a',14);
+  AU.coin();
+  updateHUD();
+  refreshPanel();
+  save();
+}
+function buy(r){
+  if(!RM[r]||!lv('market')) return;
+  var c=buyCost();
+  if(S.resources.gold<c){ toast('تحتاج '+c+' ذهب','warning'); return; }
+  if(S.resources[r]+50>S.max[r]){ toast('المخزن ممتلئ','warning'); return; }
+  S.resources.gold-=c;
+  S.resources[r]+=50;
+  addLog('شراء 50 '+RM[r].n+' مقابل '+c+'💰','info');
+  floatTxt(SLOTS.market.x,SLOTS.market.y-42,'+50 '+RM[r].i,RC[r],14);
+  AU.coin();
+  updateHUD();
+  refreshPanel();
+  save();
+}
+
+/* ---------- أفعال المباني والجنود والعمال ---------- */
 function upgrade(id){
   if(!BUILD[id]) return;
-  var t=BUILD[id], b=S.buildings[id];
+  var t=BUILD[id],b=S.buildings[id];
   if(b.level>=t.max){ toast('أقصى مستوى','warning'); return; }
   if(!unlocked(id)){ toast('طوّر مباني أخرى أولاً','warning'); return; }
   var c=costOf(id);
@@ -2956,7 +3830,7 @@ function upgrade(id){
 }
 function assign(id,d){
   if(!BUILD[id]) return;
-  var t=BUILD[id], b=S.buildings[id];
+  var t=BUILD[id],b=S.buildings[id];
   if(!t.mw) return;
   if(d>0){
     if(freeW()<=0){ toast('لا عمال متاحون','warning'); return; }
@@ -2978,7 +3852,7 @@ function repairChange(d){
     if(freeW()<=0){ toast('لا عمال متاحون','warning'); return; }
     if(S.repairCrew>=4){ toast('أقصى عمال إصلاح','warning'); return; }
     S.repairCrew++;
-    toast('👷 عامل إصلاح انضم — سيأتي بالخشب والحديد','success');
+    toast('👷 عامل إصلاح انضم','success');
   }else{
     if(S.repairCrew<=0) return;
     S.repairCrew--;
@@ -3018,35 +3892,124 @@ function train(){
   buildRosterStrip();
   save();
 }
-function sellGain(){ return 5+lv('market'); }
-function buyCost(){ return 25-2*lv('market'); }
-function sell(r){
-  if(!RM[r]) return;
-  if(!lv('market')||S.resources[r]<50){ toast('تحتاج 50 من المورد','warning'); return; }
-  S.resources[r]-=50;
-  var g=sellGain();
-  S.resources.gold+=g;
-  addLog('بيع 50 '+RM[r].n+' مقابل '+g+'💰','info');
-  floatTxt(SLOTS.market.x,SLOTS.market.y-42,'+'+g+' 💰','#ffd24a',14);
-  AU.coin();
+
+/* ---------- ميزة ١٨: بناء الأحياء ---------- */
+function buildDistrict(id){
+  if(!DISTRICTS) return;
+  var def=null;
+  for(var i=0;i<DISTRICTS.length;i++){ if(DISTRICTS[i].id===id){ def=DISTRICTS[i]; break; } }
+  if(!def) return;
+  if(S.districts[id]){ toast('الحي مبني بالفعل','warning'); return; }
+  if(S.resources.gold<def.cost){ toast('تحتاج '+def.cost+' ذهب','danger'); return; }
+  S.resources.gold-=def.cost;
+  S.districts[id]=true;
+  addLog('🏘️ بُني '+def.name,'success');
+  addChronicle('victory','بُني حي '+def.icon+' '+def.name+' داخل الأسوار');
+  toast('🏘️ بُني '+def.name+'!','gold');
+  AU.build();
+  renderCity();
   updateHUD();
-  refreshPanel();
   save();
 }
-function buy(r){
-  if(!RM[r]||!lv('market')) return;
-  var c=buyCost();
-  if(S.resources.gold<c){ toast('تحتاج '+c+' ذهب','warning'); return; }
-  if(S.resources[r]+50>S.max[r]){ toast('المخزن ممتلئ','warning'); return; }
-  S.resources.gold-=c;
-  S.resources[r]+=50;
-  addLog('شراء 50 '+RM[r].n+' مقابل '+c+'💰','info');
-  floatTxt(SLOTS.market.x,SLOTS.market.y-42,'+50 '+RM[r].i,RC[r],14);
-  AU.coin();
+
+/* ---------- ميزة ٢٠: كسب ودّ النبلاء + خطر الرفض ---------- */
+function bribeNoble(id){
+  var idx=-1;
+  for(var i=0;i<S.nobles.length;i++){ if(S.nobles[i].id===id){ idx=i; break; } }
+  if(idx<0) return;
+  if(S.nobles[idx].state==='ally'){ toast('حليف بالفعل','warning'); return; }
+  var nb=null;
+  for(var j=0;j<NOBLES.length;j++){ if(NOBLES[j].id===id){ nb=NOBLES[j]; break; } }
+  if(!nb) return;
+  if(S.resources.gold<nb.cost){ toast('تحتاج '+nb.cost+' ذهب','danger'); return; }
+  S.resources.gold-=nb.cost;
+  if(Math.random()<0.15){
+    S.nobles[idx].state='enemy';
+    addLog('🗡️ '+nb.name+' رفض رشوتك وأعلن عداوته!','danger');
+    addChronicle('betrayal',nb.icon+' '+nb.name+' رفض التحالف وأصبح عدواً');
+    toast('🗡️ '+nb.name+' انقلب عليك!','danger');
+    AU.roar();
+  }else{
+    S.nobles[idx].state='ally';
+    addLog('👑 كسبت ودّ '+nb.name,'success');
+    addChronicle('victory','تحالف مع '+nb.icon+' '+nb.name);
+    toast('👑 '+nb.name+' أصبح حليفك!','gold');
+    AU.win();
+  }
+  renderCity();
   updateHUD();
-  refreshPanel();
   save();
 }
+
+/* ---------- ميزة ٦: اختيار التشكيل ---------- */
+function setFormation(id){
+  var valid=false;
+  for(var i=0;i<FORMATIONS.length;i++){ if(FORMATIONS[i].id===id){ valid=true; break; } }
+  if(!valid) return;
+  S.formation=id;
+  var f=currentFormation();
+  addLog('🛡️ التشكيل الآن: '+f.icon+' '+f.name,'info');
+  toast('🛡️ تشكيل: '+f.name,'info');
+  AU.order();
+  renderCity();
+  save();
+}
+
+/* ---------- ميزة ٧: بناء أسلحة الحصار ---------- */
+function buildSiegeWeapon(id){
+  var def=null;
+  for(var i=0;i<SIEGE_WEAPONS.length;i++){ if(SIEGE_WEAPONS[i].id===id){ def=SIEGE_WEAPONS[i]; break; } }
+  if(!def) return;
+  if(S.siegeWeapons.indexOf(id)>=0){ toast('مبني بالفعل','warning'); return; }
+  if(!afford(def.cost)){ toast('موارد غير كافية','danger'); return; }
+  pay(def.cost);
+  S.siegeWeapons.push(id);
+  addLog('🏹 بُنيت '+def.name,'success');
+  addChronicle('victory','بُنيت '+def.icon+' '+def.name+' في الورشة');
+  toast('🏹 '+def.name+' جاهزة!','gold');
+  AU.build();
+  renderCity();
+  updateHUD();
+  save();
+}
+
+/* ---------- ميزة ٩: حفر النفق ---------- */
+function buildTunnel(){
+  if(TUNNEL_STATE.built){ toast('النفق محفور بالفعل','warning'); return; }
+  if(S.resources.gold<100||S.resources.iron<60){ toast('تحتاج 💰100 و ⛏️60','danger'); return; }
+  S.resources.gold-=100;
+  S.resources.iron-=60;
+  TUNNEL_STATE.built=true;
+  TUNNEL_STATE.discovered=false;
+  addLog('🕳️ حُفر نفق سري تحت القلعة','info');
+  addChronicle('victory','حُفر نفق سري — سلاح ذو حدين');
+  toast('🕳️ النفق جاهز... لكن احذر','warning');
+  AU.build();
+  renderCity();
+  updateHUD();
+  save();
+}
+
+/* ---------- ميزة ١٤: الخيانة العشوائية ---------- */
+function checkBetrayal(){
+  if(Math.random()>0.004) return;
+  var allies=[];
+  for(var i=0;i<S.nobles.length;i++){ if(S.nobles[i].state==='ally') allies.push(i); }
+  if(!allies.length) return;
+  var idx=allies[Math.floor(Math.random()*allies.length)];
+  var nb=null;
+  for(var j=0;j<NOBLES.length;j++){ if(NOBLES[j].id===S.nobles[idx].id){ nb=NOBLES[j]; break; } }
+  if(!nb) return;
+  S.nobles[idx].state='enemy';
+  addLog('🗡️ خيانة! '+nb.name+' طعنك في الظهر وأصبح عدواً.','danger');
+  addChronicle('betrayal',nb.icon+' '+nb.name+' خانك في ساعة الشدة');
+  toast('🗡️ خيانة! '+nb.name+' انقلب عليك','danger');
+  AU.roar();
+  if(el('pCity').classList.contains('on')) renderCity();
+  save();
+}
+
+/* ---------- أفعال عامة ---------- */
 function readyNow(){
   if(B){ toast('معركة جارية!','warning'); return; }
   closeP('pWave');
@@ -3057,8 +4020,8 @@ function hardReset(){
   if(!window.confirm('سيُمسح كل تقدمك وتبدأ من جديد. متأكد؟')) return;
   try{
     localStorage.removeItem(KEY);
-    localStorage.removeItem('thaven_v8');
-    localStorage.removeItem('thaven_v7');
+    localStorage.removeItem('sultans_v1');
+    localStorage.removeItem('sultans_v2');
   }catch(e){}
   window.location.reload();
 }
@@ -3077,6 +4040,181 @@ function toggleSpeed(){
   toast('السرعة '+S.set.speed+'× — الاقتصاد فقط','info');
 }
 
+/* ---------- ميزة ١: القافلة واختيار الموقع ---------- */
+var CARAVAN={active:false,x:0,y:0,tx:0,ty:0,progress:0,site:null};
+var caravanLast=0;
+function renderSites(){
+  var h='';
+  for(var i=0;i<SITES.length;i++){
+    var s=SITES[i];
+    h+='<div class="site" data-site="'+s.id+'">';
+    h+='<span class="selmark">✅</span>';
+    h+='<span class="si">'+s.icon+'</span>';
+    h+='<div class="sn">'+s.name+'</div>';
+    h+='<div class="sd">'+s.desc+'</div>';
+    h+='<div class="st">';
+    for(var j=0;j<s.tags.length;j++){
+      h+='<span class="stag '+s.tags[j].c+'">'+s.tags[j].t+'</span>';
+    }
+    h+='</div></div>';
+  }
+  el('sitesList').innerHTML=h;
+  var sites=document.querySelectorAll('.site');
+  for(var k=0;k<sites.length;k++){
+    sites[k].addEventListener('click',function(){
+      var all=document.querySelectorAll('.site');
+      for(var m=0;m<all.length;m++) all[m].classList.remove('sel');
+      this.classList.add('sel');
+      var sid=this.getAttribute('data-site');
+      selectedSite=null;
+      for(var n=0;n<SITES.length;n++){ if(SITES[n].id===sid){ selectedSite=SITES[n]; break; } }
+      el('confirmSite').classList.add('ready');
+    });
+  }
+}
+function renderCaravanScene(){
+  var cc=el('caravanCanvas');
+  var c=cc.getContext('2d');
+  var w=cc.width,h=cc.height;
+  c.fillStyle='#0a1420';
+  c.fillRect(0,0,w,h);
+  var R=seeded(42);
+  for(var i=0;i<200;i++){
+    var x=R()*w,y=R()*h,r=2+R()*6;
+    c.fillStyle='rgba(0,213,255,'+(0.02+R()*0.04).toFixed(3)+')';
+    c.beginPath(); c.arc(x,y,r,0,6.283); c.fill();
+  }
+  var dprc=Math.min(2,window.devicePixelRatio||1);
+  var scaleX=w/3000, scaleY=h/3000;
+  var dx=CARAVAN.tx*scaleX, dy=CARAVAN.ty*scaleY;
+  var col=CARAVAN.site?CARAVAN.site.color:'#8ea3c0';
+  c.fillStyle=col+'33';
+  c.beginPath(); c.arc(dx,dy,60,0,6.283); c.fill();
+  c.font=Math.round(32*dprc)+'px serif';
+  c.textAlign='center'; c.textBaseline='middle';
+  c.fillText(CARAVAN.site?CARAVAN.site.icon:'🏰',dx,dy);
+  c.strokeStyle='rgba(255,210,74,.4)';
+  c.lineWidth=2*dprc;
+  c.setLineDash([10*dprc,8*dprc]);
+  c.beginPath();
+  c.moveTo(150*scaleX,150*scaleY);
+  c.lineTo(dx,dy);
+  c.stroke();
+  c.setLineDash([]);
+  var cx=CARAVAN.x*scaleX, cy=CARAVAN.y*scaleY;
+  c.font=Math.round(24*dprc)+'px serif';
+  c.fillText('🐪',cx,cy);
+}
+function updateCaravanUI(){
+  var pct=Math.round(CARAVAN.progress*100);
+  el('caravanPct').textContent='المسافة: '+pct+'%';
+  el('caravanBar').style.width=pct+'%';
+  if(CARAVAN.site){
+    el('ciTitle').textContent=CARAVAN.site.icon+' '+CARAVAN.site.name;
+    el('ciDesc').textContent=CARAVAN.site.desc;
+  }
+}
+function caravanLoop(ts){
+  if(!CARAVAN.active) return;
+  var dt=Math.min(0.05,(ts-caravanLast)/1000||0.016);
+  caravanLast=ts;
+  var dx=CARAVAN.tx-CARAVAN.x, dy=CARAVAN.ty-CARAVAN.y;
+  var d=Math.sqrt(dx*dx+dy*dy);
+  if(d<20){
+    CARAVAN.progress=1;
+    updateCaravanUI();
+    setTimeout(guard('arrive',function(){ startGame(); }),800);
+    return;
+  }
+  var speed=300*dt;
+  CARAVAN.x+=dx/d*speed;
+  CARAVAN.y+=dy/d*speed;
+  CARAVAN.progress=clamp(1-d/3800,0,1);
+  updateCaravanUI();
+  renderCaravanScene();
+  requestAnimationFrame(caravanLoop);
+}
+function startCaravan(siteId){
+  var site=null;
+  for(var i=0;i<SITES.length;i++){ if(SITES[i].id===siteId){ site=SITES[i]; break; } }
+  if(!site) return;
+  selectedSite=site;
+  S.site=site;
+  el('siteSelect').classList.remove('on');
+  el('caravanScreen').classList.add('on');
+  el('caravanDest').textContent='الوجهة: '+site.name;
+  CARAVAN.active=true;
+  CARAVAN.site=site;
+  CARAVAN.progress=0;
+  CARAVAN.x=150; CARAVAN.y=150;
+  CARAVAN.tx=2850; CARAVAN.ty=2850;
+  var cc=el('caravanCanvas');
+  var rect=el('caravanMap').getBoundingClientRect();
+  var d=Math.min(2,window.devicePixelRatio||1);
+  cc.width=Math.round(rect.width*d);
+  cc.height=Math.round(rect.height*d);
+  cc.style.width=rect.width+'px';
+  cc.style.height=rect.height+'px';
+  caravanLast=performance.now();
+  AU.caravan();
+  requestAnimationFrame(caravanLoop);
+}
+
+/* ---------- بدء اللعبة ---------- */
+function startGame(){
+  CARAVAN.active=false;
+  el('start').style.display='none';
+  el('siteSelect').classList.remove('on');
+  el('caravanScreen').classList.remove('on');
+  el('game').classList.add('on');
+  var isNew=!S.started;
+  if(isNew){
+    S.buildings={};
+    ensureBuildings();
+    S.buildings.lumbermill.level=1;
+    S.wallHP=wallMax();
+    initNobles();
+    initDistricts();
+    S.seasonIdx=0;
+    S.morale=100;
+    S.wave.number=1;
+    planWave();
+    S.wave.remaining=S.firstDelay;
+    S.started=true;
+    addLog('🏰 وصلت القافلة إلى '+(S.site?S.site.name:'موقعك')+'. ابنِ سوراً قبل أول هجوم.','success');
+    addChronicle('civ','بدأت رحلة '+currentCiv().icon+' '+currentCiv().name+' في '+(S.site?S.site.icon+' '+S.site.name:'المجهول'));
+    save();
+  }else{
+    addLog('عدت إلى '+(S.site?S.site.name:'قاعدتك')+'.','info');
+  }
+  AU.init(); AU.resume(); AU.vol();
+  applyMax();
+  S.wallHP=clamp(S.wallHP,0,wallMax());
+  S.lastTick=Date.now();
+  S.lastSave=Date.now();
+  buildTop();
+  buildTerrain();
+  resize();
+  cam.z=clamp(Math.min(vw,vh)/1300,0.3,1.1);
+  cam.x=600; cam.y=600;
+  reconcile();
+  buildRosterStrip();
+  updateHUD();
+  if(tickH) clearInterval(tickH);
+  tickH=setInterval(guard('interval',tick),1000);
+  if(!rafOn){
+    rafOn=true;
+    lastF=performance.now();
+    requestAnimationFrame(frame);
+  }
+  if(isNew){
+    setTimeout(guard('tip',function(){
+      toast('🏰 مرحباً بك في '+(S.site?S.site.name:'قاعدتك')+'!','gold');
+    }),700);
+  }
+}
+
+/* ---------- الإدخال ---------- */
 function resize(){
   var r=el('stage').getBoundingClientRect();
   vw=Math.max(1,r.width);
@@ -3095,7 +4233,7 @@ function cpos(e){
   var r=cv.getBoundingClientRect();
   return {x:e.clientX-r.left,y:e.clientY-r.top};
 }
-var PTS=[], tap=null;
+var PTS=[],tap=null;
 function pIdx(id){
   for(var i=0;i<PTS.length;i++){ if(PTS[i].id===id) return i; }
   return -1;
@@ -3115,7 +4253,7 @@ cv.addEventListener('pointerdown',guard('down',function(e){
   }
 }));
 cv.addEventListener('pointermove',guard('move',function(e){
-  var p=cpos(e), i=pIdx(e.pointerId);
+  var p=cpos(e),i=pIdx(e.pointerId);
   if(placeMode){
     var w=s2w(p.x,p.y);
     placePos.x=w.x; placePos.y=w.y;
@@ -3123,7 +4261,7 @@ cv.addEventListener('pointermove',guard('move',function(e){
   if(i<0) return;
   var old=PTS[i];
   if(PTS.length===1){
-    var dx=p.x-old.x, dy=p.y-old.y;
+    var dx=p.x-old.x,dy=p.y-old.y;
     cam.x-=dx/cam.z;
     cam.y-=dy/cam.z;
     clampCam();
@@ -3131,10 +4269,10 @@ cv.addEventListener('pointermove',guard('move',function(e){
     PTS[i]={id:e.pointerId,x:p.x,y:p.y};
   }else if(PTS.length===2){
     var o=PTS[1-i];
-    var omx=(old.x+o.x)/2, omy=(old.y+o.y)/2;
+    var omx=(old.x+o.x)/2,omy=(old.y+o.y)/2;
     var od=Math.max(20,dist(old.x,old.y,o.x,o.y));
     PTS[i]={id:e.pointerId,x:p.x,y:p.y};
-    var nmx=(p.x+o.x)/2, nmy=(p.y+o.y)/2;
+    var nmx=(p.x+o.x)/2,nmy=(p.y+o.y)/2;
     var nd=Math.max(20,dist(p.x,p.y,o.x,o.y));
     var wb=s2w(omx,omy);
     cam.z=clamp(cam.z*(nd/od),0.3,2.6);
@@ -3168,7 +4306,7 @@ cv.addEventListener('pointerup',guard('up',endPtr));
 cv.addEventListener('pointercancel',guard('cancel',endPtr));
 cv.addEventListener('wheel',guard('wheel',function(e){
   e.preventDefault();
-  var p=cpos(e), wb=s2w(p.x,p.y);
+  var p=cpos(e),wb=s2w(p.x,p.y);
   cam.z=clamp(cam.z*Math.exp(-e.deltaY*0.0012),0.3,2.6);
   var wa=s2w(p.x,p.y);
   cam.x+=wb.x-wa.x;
@@ -3183,7 +4321,7 @@ document.addEventListener('gesturestart',function(e){ e.preventDefault(); });
 document.addEventListener('keydown',guard('key',function(e){
   if(e.key==='Escape'){
     if(placeMode){ cancelPlace(); return; }
-    var ids=['pBuilding','pSoldiers','pLog','pHelp','pWave','pOffline','pResult'];
+    var ids=['pBuilding','pCity','pSoldiers','pChronicle','pLog','pHelp','pWave','pOffline','pResult'];
     for(var i=0;i<ids.length;i++){
       if(el(ids[i]).classList.contains('on')){ closeP(ids[i]); return; }
     }
@@ -3202,7 +4340,7 @@ function hit(x,y){
     }
   }
   if(B&&B.phase==='assault'&&!B.deter){
-    var best=null, bd=1e9;
+    var best=null,bd=1e9;
     for(i=0;i<B.enemies.length;i++){
       var e=B.enemies[i];
       if(e.dead) continue;
@@ -3229,6 +4367,7 @@ function hit(x,y){
   if(selSid){ orderSoldier(selSid,x,y); return; }
 }
 
+/* ---------- تفويض كل الأزرار ---------- */
 document.addEventListener('click',guard('click',function(ev){
   var t=ev.target;
   if(!t||!t.closest) return;
@@ -3253,6 +4392,12 @@ document.addEventListener('click',guard('click',function(ev){
   else if(a==='train') train();
   else if(a==='sell') sell(r);
   else if(a==='buy') buy(r);
+  else if(a==='build-district') buildDistrict(id);
+  else if(a==='bribe-noble') bribeNoble(id);
+  else if(a==='set-formation') setFormation(id);
+  else if(a==='build-siege') buildSiegeWeapon(id);
+  else if(a==='build-tunnel') buildTunnel();
+  else if(a==='formation') openP('pCity');
   else if(a==='ready') readyNow();
   else if(a==='reset') hardReset();
   else if(a==='sound') toggleSound();
@@ -3282,7 +4427,9 @@ document.addEventListener('click',guard('click',function(ev){
   else if(a==='mode-sold'){ modeSoldier(parseInt(id,10),m); refreshPanel(); }
   else if(a==='mode-all') modeAll(m);
   else if(a==='desel'){ selSid=null; syncSel(); buildRosterStrip(); }
+  checkBetrayal();
 }));
+
 var panels=document.querySelectorAll('.panel');
 for(var pi=0;pi<panels.length;pi++){
   (function(pn){
@@ -3292,60 +4439,38 @@ for(var pi=0;pi<panels.length;pi++){
   })(panels[pi]);
 }
 
-function boot(){
-  if(S.started) return;
+/* ---------- معالجات شاشات البداية ---------- */
+el('go').addEventListener('click',guard('go',function(){
+  S.set.diff=window.__diff||'normal';
   AU.init(); AU.resume();
+  el('start').style.display='none';
+  el('siteSelect').classList.add('on');
+  renderSites();
+}));
+el('confirmSite').addEventListener('click',guard('confirmSite',function(){
+  if(!selectedSite){ toast('اختر موقعاً أولاً','warning'); return; }
+  startCaravan(selectedSite.id);
+}));
+el('caravanSkip').addEventListener('click',guard('skip',function(){
+  CARAVAN.active=false;
+  startGame();
+}));
+
+/* ---------- الإقلاع ---------- */
+function boot(){
+  if(S.started){ startGame(); return; }
   var loaded=load();
-  if(!loaded){
-    S.buildings={};
-    ensureBuildings();
-    S.buildings.lumbermill.level=1;
-    if(DIF[window.__diff]) S.set.diff=window.__diff;
-    S.wallHP=wallMax();
-    S.wave.number=1;
-    planWave();
-    S.wave.remaining=S.firstDelay;
-    S.started=true;
-    addLog('مرحباً بك في T-HAVEN! ابنِ سوراً قبل أول هجوم.','success');
-    save();
-  }else{
-    addLog('عدت إلى T-HAVEN.','info');
-  }
-  AU.vol();
-  applyMax();
-  S.wallHP=clamp(S.wallHP,0,wallMax());
-  S.lastTick=Date.now();
-  S.lastSave=Date.now();
-  buildTop();
-  buildTerrain();
-  resize();
-  cam.z=clamp(Math.min(vw,vh)/1300,0.3,1.1);
-  cam.x=600; cam.y=600;
-  reconcile();
-  buildRosterStrip();
-  updateHUD();
-  if(tickH) clearInterval(tickH);
-  tickH=setInterval(guard('interval',tick),1000);
-  if(!rafOn){
-    rafOn=true;
-    lastF=performance.now();
-    requestAnimationFrame(frame);
-  }
-  if(!loaded){
-    setTimeout(guard('tip',function(){
-      toast('ابدأ ببناء السور 🧱 — والأبراج 🗼 في الزوايا','success');
-    }),700);
-  }
+  if(loaded){ startGame(); return; }
+  /* لعبة جديدة: ابقَ في شاشة البداية، وزر «ابدأ الرحلة» يتولى الباقي */
 }
-window.__boot=boot;
 window.addEventListener('resize',guard('resize',function(){ if(S.started) resize(); }));
 window.addEventListener('orientationchange',function(){
   setTimeout(guard('orient',function(){ if(S.started) resize(); }),320);
 });
 window.addEventListener('beforeunload',function(){ if(S.started) save(); });
 document.addEventListener('visibilitychange',function(){ if(document.hidden&&S.started) save(); });
-if(window.__wantStart) boot();
+boot();
 })();
 </script>
 </body>
-      </html>
+  </html>
